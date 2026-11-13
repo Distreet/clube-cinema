@@ -13,6 +13,20 @@ export interface Review {
   letterboxdUrl: string | null;
 }
 
+export interface WatchProvider {
+  id: number;
+  name: string;
+  logo: string | null;
+}
+
+export interface WhereToWatchData {
+  link: string | null;
+  streaming: WatchProvider[];
+  rent: WatchProvider[];
+  buy: WatchProvider[];
+  note?: string;
+}
+
 export interface Movie {
   id: string;
   tmdbId: number;
@@ -24,11 +38,15 @@ export interface Movie {
   castMain: string;
   sessionMonth: string;
   overview: string;
+  runtime?: number | null;
+  formattedRuntime?: string;
   bgGradient: string;
-  posterGradient?: string;
+  posterPath?: string | null;
+  backdropPath?: string | null;
   posterUrl?: string;
   backdropUrl?: string;
   letterboxdSlug: string;
+  whereToWatch?: WhereToWatchData;
   reviews: Review[];
 }
 
@@ -39,8 +57,10 @@ export interface CycleMark {
 
 export interface ActiveCycle {
   id: string;
+  tmdbId: number;
   movie: {
     title: string;
+    originalTitle?: string;
     director: string;
     year: number;
     runtime: string;
@@ -48,6 +68,9 @@ export interface ActiveCycle {
     overview: string;
     suggestedBy: string;
     tagText?: string;
+    posterUrl?: string;
+    backdropUrl?: string;
+    whereToWatch?: WhereToWatchData;
   };
   deadlineDay: number;
   deadlineMonth: string;
@@ -61,4 +84,14 @@ export interface Suggestion {
   suggestedBy: string;
   votes: number;
   hasVoted?: boolean;
+}
+
+export interface TMDBMovieSearchResult {
+  id: number;
+  title: string;
+  original_title: string;
+  year: number | null;
+  poster_path: string | null;
+  backdrop_path: string | null;
+  overview: string | null;
 }

@@ -8,11 +8,10 @@ interface AwardCardProps {
 }
 
 export const AwardCard: React.FC<AwardCardProps> = ({ movies }) => {
-  // Extract all distinct years from the movies
   const years = Array.from(new Set(movies.map((m) => m.year))).sort((a, b) => b - a);
   const [selectedYear, setSelectedYear] = useState<number>(years[0] ?? 2026);
+  const [imgFailed, setImgFailed] = useState(false);
 
-  // Filter movies with reviews by year and find the top rated
   const moviesInYear = movies.filter((m) => m.year === selectedYear);
   const scoredMovies = moviesInYear
     .map((m) => ({ movie: m, avg: calcGroupAverage(m.reviews) }))
@@ -23,8 +22,9 @@ export const AwardCard: React.FC<AwardCardProps> = ({ movies }) => {
 
   if (!top) return null;
 
+  const hasImage = Boolean(top.movie.posterUrl && !imgFailed);
   const posterStyle: React.CSSProperties = {
-    background: top.movie.posterUrl
+    background: hasImage
       ? `url(${top.movie.posterUrl}) center/cover no-repeat`
       : top.movie.bgGradient,
   };
@@ -44,7 +44,16 @@ export const AwardCard: React.FC<AwardCardProps> = ({ movies }) => {
         }}
         aria-label={`Destaque de ${selectedYear}: ${top.movie.title}, com média ${formatRating(top.avg)} de 10`}
       >
-        <div className="poster" style={posterStyle} />
+        <div className="poster" style={posterStyle}>
+          {top.movie.posterUrl && !imgFailed && (
+            <img
+              src={top.movie.posterUrl}
+              alt=""
+              style={{ display: 'none' }}
+              onError={() => setImgFailed(true)}
+            />
+          )}
+        </div>
         <div style={{ minWidth: 0 }}>
           <span className="tag" style={{ background: 'var(--line)' }}>
             Destaque de {selectedYear}
@@ -58,11 +67,23 @@ export const AwardCard: React.FC<AwardCardProps> = ({ movies }) => {
       </Link>
 
       {years.length > 1 && (
-        <label style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--mut)' }}>
+        <label
+          style={{
+            marginLeft: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: 13,
+            color: 'var(--mut)',
+          }}
+        >
           Ano:
           <select
             value={selectedYear}
-            onChange={(e) => setSelectedYear(Number(e.target.value))}
+            onChange={(e) => {
+              setSelectedYear(Number(e.target.value));
+              setImgFailed(false);
+            }}
             style={{
               background: 'var(--bg)',
               color: 'var(--tx)',

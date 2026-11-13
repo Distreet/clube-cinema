@@ -9,16 +9,27 @@ export const mockMembers: Member[] = [
 
 export const initialActiveCycle: ActiveCycle = {
   id: 'cycle-1',
+  tmdbId: 1038263,
   movie: {
     title: 'Ainda Estou Aqui',
+    originalTitle: 'Ainda Estou Aqui',
     director: 'Walter Salles',
     year: 2024,
     runtime: '2h15',
-    genre: 'drama',
+    genre: 'Drama',
     overview:
       'Anos 1970, Rio de Janeiro. A rotina de uma família muda quando o pai é levado para depor e não volta. Indicado por Luara.',
     suggestedBy: 'Luara',
     tagText: 'Escolhido pelo grupo',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/8d8H05f42L2XwT5R5iS8E9o2hM.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/w1280/9l1dTaZ8jD1jA13Lp6j9n0fM5u.jpg',
+    whereToWatch: {
+      link: 'https://www.justwatch.com/br/filme/ainda-estou-aqui',
+      streaming: [],
+      rent: [],
+      buy: [],
+      note: 'Em exibição nos cinemas e em breve no streaming (Globoplay).',
+    },
   },
   deadlineDay: 26,
   deadlineMonth: 'novembro',
@@ -39,14 +50,23 @@ export const mockMovies: Movie[] = [
     originalTitle: 'Project Hail Mary',
     year: 2026,
     director: 'Phil Lord e Christopher Miller',
-    genres: 'Ficção científica',
-    castMain: 'Ryan Gosling, Sandra Hüller',
+    genres: 'Ficção científica, Aventura',
+    castMain: 'Ryan Gosling, Sandra Hüller, Milana Vayntrub',
     sessionMonth: 'set 2026',
     letterboxdSlug: 'project-hail-mary',
     bgGradient:
       'radial-gradient(circle at 72% 24%,#ffb347 0,#e8590c 13%,#16213e 14%,#0b1026 100%)',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/39p6bK9gO2L8d1T6Q8u3n2b1a.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/w1280/7O0Z7c4L5r8M2W6j4a3n1b2c.jpg',
     overview:
       'Um professor de ciências acorda sozinho numa nave, sem lembrar quem é nem por que está ali, e aos poucos descobre que sua missão é salvar a Terra de uma ameaça que está apagando o Sol.',
+    whereToWatch: {
+      link: 'https://www.justwatch.com/br/filme/project-hail-mary',
+      streaming: [],
+      rent: [],
+      buy: [],
+      note: 'Lançamento mundial nos cinemas previsto para 2026.',
+    },
     reviews: [
       {
         id: 'rev-1-1',
@@ -89,14 +109,32 @@ export const mockMovies: Movie[] = [
     originalTitle: 'Eternal Sunshine of the Spotless Mind',
     year: 2004,
     director: 'Michel Gondry',
-    genres: 'Romance, ficção científica',
-    castMain: 'Jim Carrey, Kate Winslet',
+    genres: 'Romance, Ficção científica, Drama',
+    castMain: 'Jim Carrey, Kate Winslet, Kirsten Dunst, Mark Ruffalo',
     sessionMonth: 'jul 2026',
     letterboxdSlug: 'eternal-sunshine-of-the-spotless-mind',
     bgGradient:
       'linear-gradient(160deg,#7fb2e0,#1d3557 62%,#e07a3f 135%)',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/5MwkWH9tYHv3mV9OdYTMR5q9IzL.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/w1280/7vyFjL8tQvU5o1Nq6s9C2A4i4l.jpg',
     overview:
       'Depois de um término doloroso, um homem descobre que a ex contratou um procedimento para apagar as memórias do relacionamento e decide fazer o mesmo.',
+    whereToWatch: {
+      link: 'https://www.justwatch.com/br/filme/brilho-eterno-de-uma-mente-sem-lembrancas',
+      streaming: [
+        { id: 8, name: 'Netflix', logo: null },
+        { id: 167, name: 'Claro Video', logo: null },
+      ],
+      rent: [
+        { id: 2, name: 'Apple TV', logo: null },
+        { id: 10, name: 'Amazon Video', logo: null },
+        { id: 3, name: 'Google Play Filmes', logo: null },
+      ],
+      buy: [
+        { id: 2, name: 'Apple TV', logo: null },
+        { id: 10, name: 'Amazon Video', logo: null },
+      ],
+    },
     reviews: [
       {
         id: 'rev-2-1',
@@ -143,14 +181,31 @@ export const mockMovies: Movie[] = [
     originalTitle: 'The Departed',
     year: 2006,
     director: 'Martin Scorsese',
-    genres: 'Crime, suspense',
-    castMain: 'Leonardo DiCaprio, Matt Damon, Jack Nicholson',
+    genres: 'Crime, Suspense, Drama',
+    castMain: 'Leonardo DiCaprio, Matt Damon, Jack Nicholson, Mark Wahlberg',
     sessionMonth: 'abr 2026',
     letterboxdSlug: 'the-departed',
     bgGradient:
       'linear-gradient(160deg,#8a97a3,#2b3640 58%,#7a1f24)',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/nW5yZkS9JqC5eJ5C5e7u1A3k9l.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/w1280/8Z8G5o2Z9Xk5j9b2N3A1e6u7o.jpg',
     overview:
       'Em Boston, um policial novato se infiltra na máfia irlandesa enquanto um criminoso infiltrado na polícia faz o mesmo. Cada lado corre para descobrir o espião do outro.',
+    whereToWatch: {
+      link: 'https://www.justwatch.com/br/filme/os-infiltrados',
+      streaming: [
+        { id: 1899, name: 'Max', logo: null },
+        { id: 119, name: 'Prime Video', logo: null },
+      ],
+      rent: [
+        { id: 2, name: 'Apple TV', logo: null },
+        { id: 10, name: 'Amazon Video', logo: null },
+      ],
+      buy: [
+        { id: 2, name: 'Apple TV', logo: null },
+        { id: 10, name: 'Amazon Video', logo: null },
+      ],
+    },
     reviews: [
       {
         id: 'rev-3-1',
@@ -193,14 +248,32 @@ export const mockMovies: Movie[] = [
     originalTitle: 'The Godfather',
     year: 1972,
     director: 'Francis Ford Coppola',
-    genres: 'Drama, crime',
-    castMain: 'Marlon Brando, Al Pacino, James Caan',
+    genres: 'Drama, Crime',
+    castMain: 'Marlon Brando, Al Pacino, James Caan, Robert Duvall',
     sessionMonth: 'fev 2026',
     letterboxdSlug: 'the-godfather',
     bgGradient:
       'linear-gradient(170deg,#5a3d12,#120b06 70%)',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/w1280/tmU7GeKVybMWF92PQopvyG6KyP8.jpg',
     overview:
       'A família Corleone, poderosa na máfia de Nova York, vê o patriarca sofrer um atentado e o filho caçula, que queria ficar longe dos negócios, ser puxado para o centro da guerra.',
+    whereToWatch: {
+      link: 'https://www.justwatch.com/br/filme/o-poderoso-chefao',
+      streaming: [
+        { id: 8, name: 'Netflix', logo: null },
+        { id: 531, name: 'Paramount+', logo: null },
+        { id: 307, name: 'Telecine', logo: null },
+      ],
+      rent: [
+        { id: 2, name: 'Apple TV', logo: null },
+        { id: 10, name: 'Amazon Video', logo: null },
+      ],
+      buy: [
+        { id: 2, name: 'Apple TV', logo: null },
+        { id: 10, name: 'Amazon Video', logo: null },
+      ],
+    },
     reviews: [
       {
         id: 'rev-4-1',

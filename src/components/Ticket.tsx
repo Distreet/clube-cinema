@@ -1,5 +1,6 @@
 import React from 'react';
 import type { ActiveCycle } from '../types';
+import { WhereToWatch } from './WhereToWatch';
 
 interface TicketProps {
   cycle: ActiveCycle | null;
@@ -31,6 +32,7 @@ export const Ticket: React.FC<TicketProps> = ({ cycle }) => {
           {movie.director}, {movie.year}, {movie.runtime}, {movie.genre}
         </div>
         <p>{movie.overview}</p>
+        <WhereToWatch data={movie.whereToWatch} compact />
       </div>
 
       <div className="stub">

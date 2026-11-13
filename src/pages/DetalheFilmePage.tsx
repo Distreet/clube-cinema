@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import type { Movie } from '../types';
 import { MovieBanner } from '../components/MovieBanner';
 import { ExpandableReview } from '../components/ExpandableReview';
+import { WhereToWatch } from '../components/WhereToWatch';
 import { calcGroupAverage, formatRating } from '../utils/format';
 
 interface DetalheFilmePageProps {
@@ -65,9 +66,8 @@ export const DetalheFilmePage: React.FC<DetalheFilmePageProps> = ({ movies }) =>
 
           <p>{movie.overview}</p>
 
-          <p className="mut" style={{ marginTop: 20 }}>
-            Onde assistir: vem do TMDB na versão final (Brasil).
-          </p>
+          {/* Onde assistir no Brasil (Dados TMDB / JustWatch) */}
+          <WhereToWatch data={movie.whereToWatch} />
         </aside>
 
         {/* Coluna direita */}

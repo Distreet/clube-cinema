@@ -6,7 +6,7 @@ import {
   mockMovies,
   initialSuggestions,
 } from './data/mockData';
-import type { ActiveCycle, Movie, Suggestion } from './types';
+import type { ActiveCycle, CycleMark, Movie, Suggestion } from './types';
 import { AuthProvider } from './contexts/AuthContext';
 import { Header } from './components/Header';
 import { Navbar } from './components/Navbar';
@@ -25,13 +25,23 @@ export const App: React.FC = () => {
   const [members] = useState(mockMembers);
 
   // Toggle user watch mark in active cycle
-  const handleToggleUserWatch = (memberIndex: number) => {
+  const handleToggleWatch = (memberName: string) => {
     if (!cycle) return;
     setCycle((prev) => {
       if (!prev) return null;
-      const updatedCrew = prev.crew.map((item, idx) =>
-        idx === memberIndex ? { ...item, watched: !item.watched } : item
+      const exists = prev.crew.some(
+        (c) => c.memberName.toLowerCase() === memberName.toLowerCase()
       );
+      let updatedCrew: CycleMark[];
+      if (exists) {
+        updatedCrew = prev.crew.map((item) =>
+          item.memberName.toLowerCase() === memberName.toLowerCase()
+            ? { ...item, watched: !item.watched }
+            : item
+        );
+      } else {
+        updatedCrew = [...prev.crew, { memberName, watched: true }];
+      }
       return { ...prev, crew: updatedCrew };
     });
   };
@@ -70,7 +80,7 @@ export const App: React.FC = () => {
                 element={
                   <ProximaSessaoPage
                     cycle={cycle}
-                    onToggleUserWatch={handleToggleUserWatch}
+                    onToggleWatch={handleToggleWatch}
                   />
                 }
               />
@@ -79,7 +89,7 @@ export const App: React.FC = () => {
                 element={
                   <ProximaSessaoPage
                     cycle={cycle}
-                    onToggleUserWatch={handleToggleUserWatch}
+                    onToggleWatch={handleToggleWatch}
                   />
                 }
               />

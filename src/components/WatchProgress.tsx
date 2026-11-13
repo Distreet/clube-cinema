@@ -5,18 +5,40 @@ import { ProgressBar } from './ProgressBar';
 
 interface WatchProgressProps {
   crew: CycleMark[];
-  currentUserIndex?: number;
-  onToggleUserWatch: (index: number) => void;
+  currentUserName?: string;
+  onToggleWatch: (memberName: string) => void;
+  onRequestLogin?: () => void;
 }
 
 export const WatchProgress: React.FC<WatchProgressProps> = ({
   crew,
-  currentUserIndex = 0,
-  onToggleUserWatch,
+  currentUserName,
+  onToggleWatch,
+  onRequestLogin,
 }) => {
   const watchedCount = crew.filter((c) => c.watched).length;
   const totalCount = crew.length;
-  const isCurrentUserWatched = crew[currentUserIndex]?.watched ?? false;
+
+  // Localiza o status do membro atual
+  const currentUserMark = currentUserName
+    ? crew.find((c) => c.memberName.toLowerCase() === currentUserName.toLowerCase())
+    : null;
+
+  const isCurrentUserWatched = currentUserMark?.watched ?? false;
+
+  const handleClick = () => {
+    if (!currentUserName) {
+      if (onRequestLogin) onRequestLogin();
+      return;
+    }
+
+    if (currentUserMark) {
+      onToggleWatch(currentUserMark.memberName);
+    } else {
+      // Se for um novo membro ainda não listado no mock inicial, adiciona e marca
+      onToggleWatch(currentUserName);
+    }
+  };
 
   return (
     <section className="poll" aria-labelledby="poll-heading">
@@ -43,9 +65,20 @@ export const WatchProgress: React.FC<WatchProgressProps> = ({
         <button
           className="btn"
           type="button"
-          onClick={() => onToggleUserWatch(currentUserIndex)}
+          onClick={handleClick}
+          title={
+            !currentUserName
+              ? 'Faça login para registrar que assistiu'
+              : isCurrentUserWatched
+              ? 'Clique para desmarcar'
+              : 'Clique para marcar que assistiu'
+          }
         >
-          {isCurrentUserWatched ? 'Desmarcar que eu vi' : 'Marcar que eu já vi'}
+          {!currentUserName
+            ? 'Entrar para marcar que viu'
+            : isCurrentUserWatched
+            ? 'Desmarcar que eu vi'
+            : 'Marcar que eu já vi'}
         </button>
       </div>
     </section>

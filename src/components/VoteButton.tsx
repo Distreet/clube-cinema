@@ -13,15 +13,25 @@ export const VoteButton: React.FC<VoteButtonProps> = ({
   onToggle,
   title,
 }) => {
+  let label = '';
+  if (votes === 0) {
+    label = 'Votar';
+  } else if (votes === 1) {
+    label = '1 votou';
+  } else {
+    label = `${votes} votaram`;
+  }
+
   return (
     <button
       type="button"
       className="vote"
       aria-pressed={hasVoted}
       onClick={onToggle}
-      aria-label={`${hasVoted ? 'Remover voto de' : 'Votar em'} ${title}`}
+      aria-label={`${hasVoted ? 'Remover seu voto de' : 'Votar em'} ${title}. Total: ${label}`}
+      title={hasVoted ? 'Você já votou neste filme. Clique para remover seu voto.' : 'Clique para votar neste filme.'}
     >
-      {votes} {hasVoted ? 'votado' : 'votar'}
+      {hasVoted ? `✓ ${label}` : label}
     </button>
   );
 };

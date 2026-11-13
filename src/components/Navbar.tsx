@@ -1,8 +1,10 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
+  const { isAdmin } = useAuth();
   const pathname = location.pathname;
 
   const isProximaActive = pathname === '/' || pathname === '/proxima';
@@ -12,6 +14,7 @@ export const Navbar: React.FC = () => {
     pathname.startsWith('/filmes/');
   const isAcervoActive = pathname === '/acervo';
   const isMembrosActive = pathname === '/membros';
+  const isAdminActive = pathname.startsWith('/admin');
 
   return (
     <nav role="tablist" aria-label="Seções">
@@ -47,6 +50,16 @@ export const Navbar: React.FC = () => {
       >
         Membros
       </NavLink>
+      {isAdmin && (
+        <NavLink
+          to="/admin"
+          className={isAdminActive ? 'active' : ''}
+          role="tab"
+          aria-selected={isAdminActive}
+        >
+          Admin
+        </NavLink>
+      )}
     </nav>
   );
 };

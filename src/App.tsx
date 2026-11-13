@@ -7,6 +7,7 @@ import {
   initialSuggestions,
 } from './data/mockData';
 import type { ActiveCycle, Movie, Suggestion } from './types';
+import { AuthProvider } from './contexts/AuthContext';
 import { Header } from './components/Header';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -15,6 +16,7 @@ import { JaVimosPage } from './pages/JaVimosPage';
 import { DetalheFilmePage } from './pages/DetalheFilmePage';
 import { AcervoPage } from './pages/AcervoPage';
 import { MembrosPage } from './pages/MembrosPage';
+import { AdminPage } from './pages/AdminPage';
 
 export const App: React.FC = () => {
   const [cycle, setCycle] = useState<ActiveCycle | null>(initialActiveCycle);
@@ -62,64 +64,67 @@ export const App: React.FC = () => {
   };
 
   return (
-    <BrowserRouter>
-      <div className="wrap">
-        <Header />
-        <Navbar />
+    <AuthProvider>
+      <BrowserRouter>
+        <div className="wrap">
+          <Header />
+          <Navbar />
 
-        <main id="main-content">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <ProximaSessaoPage
-                  cycle={cycle}
-                  onToggleUserWatch={handleToggleUserWatch}
-                />
-              }
-            />
-            <Route
-              path="/proxima"
-              element={
-                <ProximaSessaoPage
-                  cycle={cycle}
-                  onToggleUserWatch={handleToggleUserWatch}
-                />
-              }
-            />
-            <Route
-              path="/ja-vimos"
-              element={<JaVimosPage movies={movies} />}
-            />
-            <Route
-              path="/historico"
-              element={<JaVimosPage movies={movies} />}
-            />
-            <Route
-              path="/filmes/:id"
-              element={<DetalheFilmePage movies={movies} />}
-            />
-            <Route
-              path="/acervo"
-              element={
-                <AcervoPage
-                  suggestions={suggestions}
-                  onAddSuggestion={handleAddSuggestion}
-                  onToggleVote={handleToggleVote}
-                />
-              }
-            />
-            <Route
-              path="/membros"
-              element={<MembrosPage members={members} />}
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
+          <main id="main-content">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <ProximaSessaoPage
+                    cycle={cycle}
+                    onToggleUserWatch={handleToggleUserWatch}
+                  />
+                }
+              />
+              <Route
+                path="/proxima"
+                element={
+                  <ProximaSessaoPage
+                    cycle={cycle}
+                    onToggleUserWatch={handleToggleUserWatch}
+                  />
+                }
+              />
+              <Route
+                path="/ja-vimos"
+                element={<JaVimosPage movies={movies} />}
+              />
+              <Route
+                path="/historico"
+                element={<JaVimosPage movies={movies} />}
+              />
+              <Route
+                path="/filmes/:id"
+                element={<DetalheFilmePage movies={movies} />}
+              />
+              <Route
+                path="/acervo"
+                element={
+                  <AcervoPage
+                    suggestions={suggestions}
+                    onAddSuggestion={handleAddSuggestion}
+                    onToggleVote={handleToggleVote}
+                  />
+                }
+              />
+              <Route
+                path="/membros"
+                element={<MembrosPage members={members} />}
+              />
+              <Route path="/admin" element={<AdminPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
 
-        <Footer />
-      </div>
-    </BrowserRouter>
+          <Footer />
+        </div>
+      </BrowserRouter>
+    </AuthProvider>
   );
 };
 

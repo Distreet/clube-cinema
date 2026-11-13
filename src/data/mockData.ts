@@ -1,0 +1,247 @@
+import type { ActiveCycle, Member, Movie, Suggestion } from '../types';
+
+export const mockMembers: Member[] = [
+  { id: '1', name: 'Samuel', letterboxdUsername: 'samuel', color: '#c0392b' },
+  { id: '2', name: 'Luara', letterboxdUsername: 'luara', color: '#2e6f8e' },
+  { id: '3', name: 'Filipe', letterboxdUsername: 'filipe', color: '#7d5ba6' },
+  { id: '4', name: 'Tamires', letterboxdUsername: 'tamires', color: '#d98a2b' },
+];
+
+export const initialActiveCycle: ActiveCycle = {
+  id: 'cycle-1',
+  movie: {
+    title: 'Ainda Estou Aqui',
+    director: 'Walter Salles',
+    year: 2024,
+    runtime: '2h15',
+    genre: 'drama',
+    overview:
+      'Anos 1970, Rio de Janeiro. A rotina de uma família muda quando o pai é levado para depor e não volta. Indicado por Luara.',
+    suggestedBy: 'Luara',
+    tagText: 'Escolhido pelo grupo',
+  },
+  deadlineDay: 26,
+  deadlineMonth: 'novembro',
+  discussionNote: 'depois, o papo',
+  crew: [
+    { memberName: 'Samuel', watched: false },
+    { memberName: 'Luara', watched: true },
+    { memberName: 'Filipe', watched: true },
+    { memberName: 'Tamires', watched: false },
+  ],
+};
+
+export const mockMovies: Movie[] = [
+  {
+    id: 'devorador',
+    tmdbId: 787699,
+    title: 'O Devorador de Estrelas',
+    originalTitle: 'Project Hail Mary',
+    year: 2026,
+    director: 'Phil Lord e Christopher Miller',
+    genres: 'Ficção científica',
+    castMain: 'Ryan Gosling, Sandra Hüller',
+    sessionMonth: 'set 2026',
+    letterboxdSlug: 'project-hail-mary',
+    bgGradient:
+      'radial-gradient(circle at 72% 24%,#ffb347 0,#e8590c 13%,#16213e 14%,#0b1026 100%)',
+    overview:
+      'Um professor de ciências acorda sozinho numa nave, sem lembrar quem é nem por que está ali, e aos poucos descobre que sua missão é salvar a Terra de uma ameaça que está apagando o Sol.',
+    reviews: [
+      {
+        id: 'rev-1-1',
+        memberName: 'Samuel',
+        rating: 4.5,
+        reviewText:
+          'Ciência de verdade virando aventura. Dei risada, me emocionei e saí querendo ler o livro.',
+        letterboxdUrl: 'https://letterboxd.com/film/project-hail-mary/',
+      },
+      {
+        id: 'rev-1-2',
+        memberName: 'Luara',
+        rating: 4.0,
+        reviewText:
+          'Muito bonito de ver e com um humor que eu não esperava. O começo é confuso de propósito, vale a paciência.',
+        letterboxdUrl: 'https://letterboxd.com/film/project-hail-mary/',
+      },
+      {
+        id: 'rev-1-3',
+        memberName: 'Filipe',
+        rating: 5.0,
+        reviewText:
+          'Curti demais a parte científica. Achei a segunda metade ainda melhor que a primeira.',
+        letterboxdUrl: 'https://letterboxd.com/film/project-hail-mary/',
+      },
+      {
+        id: 'rev-1-4',
+        memberName: 'Tamires',
+        rating: 3.5,
+        reviewText:
+          'Gostei, mas esperava mais emoção no final. Mesmo assim, valeu o ingresso.',
+        letterboxdUrl: 'https://letterboxd.com/film/project-hail-mary/',
+      },
+    ],
+  },
+  {
+    id: 'brilho',
+    tmdbId: 38,
+    title: 'Brilho Eterno de uma Mente sem Lembranças',
+    originalTitle: 'Eternal Sunshine of the Spotless Mind',
+    year: 2004,
+    director: 'Michel Gondry',
+    genres: 'Romance, ficção científica',
+    castMain: 'Jim Carrey, Kate Winslet',
+    sessionMonth: 'jul 2026',
+    letterboxdSlug: 'eternal-sunshine-of-the-spotless-mind',
+    bgGradient:
+      'linear-gradient(160deg,#7fb2e0,#1d3557 62%,#e07a3f 135%)',
+    overview:
+      'Depois de um término doloroso, um homem descobre que a ex contratou um procedimento para apagar as memórias do relacionamento e decide fazer o mesmo.',
+    reviews: [
+      {
+        id: 'rev-2-1',
+        memberName: 'Samuel',
+        rating: 4.5,
+        reviewText:
+          'Filme pra ver quando o coração tá fraco. Doeu e curou ao mesmo tempo.',
+        letterboxdUrl:
+          'https://letterboxd.com/film/eternal-sunshine-of-the-spotless-mind/',
+      },
+      {
+        id: 'rev-2-2',
+        memberName: 'Luara',
+        rating: 5.0,
+        reviewText:
+          'O melhor filme sobre relacionamento que existe, na minha opinião. A trilha é linda.',
+        letterboxdUrl:
+          'https://letterboxd.com/film/eternal-sunshine-of-the-spotless-mind/',
+      },
+      {
+        id: 'rev-2-3',
+        memberName: 'Filipe',
+        rating: 4.0,
+        reviewText:
+          'A edição é genial, mas me perdi um pouco no meio. Valeu a revisão.',
+        letterboxdUrl:
+          'https://letterboxd.com/film/eternal-sunshine-of-the-spotless-mind/',
+      },
+      {
+        id: 'rev-2-4',
+        memberName: 'Tamires',
+        rating: 4.5,
+        reviewText:
+          'Jim Carrey no modo sério é outro nível. Choro garantido.',
+        letterboxdUrl:
+          'https://letterboxd.com/film/eternal-sunshine-of-the-spotless-mind/',
+      },
+    ],
+  },
+  {
+    id: 'infiltrados',
+    tmdbId: 1422,
+    title: 'Os Infiltrados',
+    originalTitle: 'The Departed',
+    year: 2006,
+    director: 'Martin Scorsese',
+    genres: 'Crime, suspense',
+    castMain: 'Leonardo DiCaprio, Matt Damon, Jack Nicholson',
+    sessionMonth: 'abr 2026',
+    letterboxdSlug: 'the-departed',
+    bgGradient:
+      'linear-gradient(160deg,#8a97a3,#2b3640 58%,#7a1f24)',
+    overview:
+      'Em Boston, um policial novato se infiltra na máfia irlandesa enquanto um criminoso infiltrado na polícia faz o mesmo. Cada lado corre para descobrir o espião do outro.',
+    reviews: [
+      {
+        id: 'rev-3-1',
+        memberName: 'Samuel',
+        rating: 4.0,
+        reviewText:
+          'Elenco inacreditável e tensão do início ao fim. Jack Nicholson rouba qualquer cena.',
+        letterboxdUrl: 'https://letterboxd.com/film/the-departed/',
+      },
+      {
+        id: 'rev-3-2',
+        memberName: 'Luara',
+        rating: 4.5,
+        reviewText:
+          'Prende demais, com umas viradas bem cruéis. Recomendo ver sem ler nada antes.',
+        letterboxdUrl: 'https://letterboxd.com/film/the-departed/',
+      },
+      {
+        id: 'rev-3-3',
+        memberName: 'Filipe',
+        rating: 3.5,
+        reviewText:
+          'Bom, mas acho que o original de Hong Kong ainda é superior.',
+        letterboxdUrl: 'https://letterboxd.com/film/the-departed/',
+      },
+      {
+        id: 'rev-3-4',
+        memberName: 'Tamires',
+        rating: 4.0,
+        reviewText:
+          'Divertido e violento na medida. O final é daqueles que ficam na cabeça.',
+        letterboxdUrl: 'https://letterboxd.com/film/the-departed/',
+      },
+    ],
+  },
+  {
+    id: 'chefao',
+    tmdbId: 238,
+    title: 'O Poderoso Chefão',
+    originalTitle: 'The Godfather',
+    year: 1972,
+    director: 'Francis Ford Coppola',
+    genres: 'Drama, crime',
+    castMain: 'Marlon Brando, Al Pacino, James Caan',
+    sessionMonth: 'fev 2026',
+    letterboxdSlug: 'the-godfather',
+    bgGradient:
+      'linear-gradient(170deg,#5a3d12,#120b06 70%)',
+    overview:
+      'A família Corleone, poderosa na máfia de Nova York, vê o patriarca sofrer um atentado e o filho caçula, que queria ficar longe dos negócios, ser puxado para o centro da guerra.',
+    reviews: [
+      {
+        id: 'rev-4-1',
+        memberName: 'Samuel',
+        rating: 5.0,
+        reviewText:
+          'Cada cena parece pensada no milímetro. Não tem como não respeitar.',
+        letterboxdUrl: 'https://letterboxd.com/film/the-godfather/',
+      },
+      {
+        id: 'rev-4-2',
+        memberName: 'Luara',
+        rating: 4.5,
+        reviewText:
+          'Lento em alguns momentos, mas o Pacino segura tudo. Final perfeito.',
+        letterboxdUrl: 'https://letterboxd.com/film/the-godfather/',
+      },
+      {
+        id: 'rev-4-3',
+        memberName: 'Filipe',
+        rating: 5.0,
+        reviewText:
+          'Vi pela terceira vez e ainda descubro coisa nova. Clássico não é exagero.',
+        letterboxdUrl: 'https://letterboxd.com/film/the-godfather/',
+      },
+      {
+        id: 'rev-4-4',
+        memberName: 'Tamires',
+        rating: 4.0,
+        reviewText:
+          'Demorei pra ver e me arrependi de ter demorado. A fotografia é um absurdo.',
+        letterboxdUrl: 'https://letterboxd.com/film/the-godfather/',
+      },
+    ],
+  },
+];
+
+export const initialSuggestions: Suggestion[] = [
+  { id: 'sug-1', title: 'Cidade de Deus', suggestedBy: 'Samuel', votes: 4 },
+  { id: 'sug-2', title: 'Whiplash', suggestedBy: 'Luara', votes: 3 },
+  { id: 'sug-3', title: 'Interestelar', suggestedBy: 'Filipe', votes: 2 },
+  { id: 'sug-4', title: 'A Substância', suggestedBy: 'Tamires', votes: 2 },
+  { id: 'sug-5', title: 'Rede de Intrigas', suggestedBy: 'Luara', votes: 1 },
+];

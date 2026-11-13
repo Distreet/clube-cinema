@@ -1,0 +1,699 @@
+:root {
+  --bg: #2a0f17;
+  --bg2: #3a1722;
+  --line: #5a2a38;
+  --tx: #f6e9dc;
+  --mut: #c9a8a0;
+  --amber: #f2b84b;
+  --amber-ink: #2a0f17;
+  --paper: #efe4cf;
+  --paper-ink: #2a0f17;
+  --rose: #d9808f;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f7ede4;
+    --bg2: #efdfd2;
+    --line: #d9bfb0;
+    --tx: #2a0f17;
+    --mut: #7a5560;
+    --amber: #8f2f45;
+    --amber-ink: #fff6ee;
+    --paper: #fff8ea;
+    --rose: #a8445a;
+    color-scheme: light;
+  }
+}
+
+:root[data-theme="light"] {
+  --bg: #f7ede4;
+  --bg2: #efdfd2;
+  --line: #d9bfb0;
+  --tx: #2a0f17;
+  --mut: #7a5560;
+  --amber: #8f2f45;
+  --amber-ink: #fff6ee;
+  --paper: #fff8ea;
+  --rose: #a8445a;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #2a0f17;
+  --bg2: #3a1722;
+  --line: #5a2a38;
+  --tx: #f6e9dc;
+  --mut: #c9a8a0;
+  --amber: #f2b84b;
+  --amber-ink: #2a0f17;
+  --paper: #efe4cf;
+  --paper-ink: #2a0f17;
+  --rose: #d9808f;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--tx);
+  font: 400 16px/1.55 "Instrument Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: "Bricolage Grotesque", "Instrument Sans", system-ui, sans-serif;
+  margin: 0;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 20px 64px;
+}
+
+/* Header & Brand */
+header {
+  padding: 28px 0 12px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.brand-group {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  font: 800 clamp(28px, 6vw, 40px) / 1 "Bricolage Grotesque", sans-serif;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+  color: var(--tx);
+}
+
+.brand small {
+  font: 500 13px "Instrument Sans", sans-serif;
+  color: var(--mut);
+  letter-spacing: 0;
+}
+
+/* Theme selector toggle */
+.theme-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  padding: 3px 6px;
+}
+
+.theme-switch button {
+  background: none;
+  border: 0;
+  color: var(--mut);
+  font: 600 12px "Instrument Sans", sans-serif;
+  padding: 4px 8px;
+  border-radius: 99px;
+  cursor: pointer;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.theme-switch button[data-active="true"] {
+  background: var(--amber);
+  color: var(--amber-ink);
+}
+
+/* Nav Tabs */
+nav {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 28px;
+  -webkit-overflow-scrolling: touch;
+}
+
+nav a {
+  background: none;
+  border: 0;
+  color: var(--mut);
+  font: 600 15px "Instrument Sans", sans-serif;
+  padding: 12px 14px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+nav a:hover {
+  color: var(--tx);
+}
+
+nav a.active {
+  color: var(--tx);
+  border-bottom-color: var(--amber);
+}
+
+.lead {
+  color: var(--mut);
+  max-width: 60ch;
+  margin: 6px 0 22px;
+}
+
+/* Ingresso (Ticket) */
+.ticket {
+  display: grid;
+  grid-template-columns: 1fr 170px;
+  background: var(--paper);
+  color: var(--paper-ink);
+  border-radius: 14px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 18px 40px -18px #000000aa;
+}
+
+.ticket .main {
+  padding: 26px 28px;
+}
+
+.ticket .stub {
+  border-left: 2px dashed #2a0f1766;
+  padding: 26px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  background: #00000008;
+}
+
+.ticket::before,
+.ticket::after {
+  content: "";
+  position: absolute;
+  right: 158px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg);
+}
+
+.ticket::before {
+  top: -12px;
+}
+
+.ticket::after {
+  bottom: -12px;
+}
+
+.ticket h2 {
+  font-size: clamp(34px, 7vw, 56px);
+  margin: 8px 0 10px;
+}
+
+.ticket .meta {
+  font-weight: 600;
+  color: #6a3a46;
+}
+
+.ticket p {
+  max-width: 48ch;
+  margin: 12px 0 0;
+}
+
+.stub .day {
+  font: 800 54px / 1 "Bricolage Grotesque", sans-serif;
+}
+
+.stub .mon {
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.stub .hr {
+  font-weight: 600;
+  color: #6a3a46;
+}
+
+.tag {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 13px;
+  background: #2a0f171a;
+  padding: 3px 10px;
+  border-radius: 99px;
+}
+
+/* Quem já assistiu (Poll / Watch progress) */
+.poll {
+  margin-top: 30px;
+}
+
+.poll h3,
+.sec h3 {
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.watch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.chip {
+  padding: 7px 14px;
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  color: var(--mut);
+  font-weight: 600;
+  font-size: 14px;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.chip[data-done="true"] {
+  background: var(--amber);
+  color: var(--amber-ink);
+  border-color: var(--amber);
+}
+
+.prog {
+  flex-basis: 100%;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--line);
+  overflow: hidden;
+  margin: 6px 0 2px;
+}
+
+.prog i {
+  display: block;
+  height: 100%;
+  background: var(--amber);
+  transition: width 0.35s ease;
+}
+
+.watch .btn {
+  margin-left: auto;
+}
+
+/* Destaque (Award) */
+.award {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  background: var(--bg2);
+  border: 1px solid var(--amber);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 26px;
+}
+
+.award .poster {
+  width: 74px;
+  flex: none;
+}
+
+.award b {
+  font: 800 20px "Bricolage Grotesque", sans-serif;
+}
+
+.award p {
+  margin: 2px 0 0;
+  color: var(--mut);
+}
+
+/* Pôsteres & Grid */
+.poster {
+  aspect-ratio: 2/3;
+  border-radius: 6px;
+  display: flex;
+  align-items: flex-end;
+  padding: 10px;
+  color: #fff;
+  font: 800 15px / 1.05 "Bricolage Grotesque", sans-serif;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  box-shadow: inset 0 -60px 50px -30px #000000aa;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 20px 16px;
+}
+
+.card .info {
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.card .info b {
+  display: block;
+  font-size: 15px;
+}
+
+.nota {
+  color: var(--amber);
+  font-weight: 600;
+}
+
+.mut {
+  color: var(--mut);
+}
+
+a.card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+a.card:hover .poster {
+  outline: 2px solid var(--amber);
+}
+
+/* Detalhe do Filme */
+.back {
+  display: inline-block;
+  margin-bottom: 18px;
+  color: var(--mut);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.back:hover {
+  color: var(--tx);
+}
+
+.det {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 32px;
+  align-items: start;
+}
+
+.banner {
+  aspect-ratio: 16/9;
+  border-radius: 10px;
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+  color: #fff;
+  font: 800 clamp(20px, 3.4vw, 30px) / 1.05 "Bricolage Grotesque", sans-serif;
+  box-shadow: inset 0 -70px 60px -30px #000000bb;
+  margin-bottom: 16px;
+  background-size: cover;
+  background-position: center;
+}
+
+.det h2 {
+  font-size: clamp(28px, 5vw, 40px);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 14px;
+  margin: 16px 0;
+}
+
+.facts dt {
+  color: var(--mut);
+}
+
+.facts dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+.avg {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.avg b {
+  font: 800 56px / 1 "Bricolage Grotesque", sans-serif;
+  color: var(--amber);
+}
+
+/* Reviews */
+.rev {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.rh {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.rev summary {
+  cursor: pointer;
+  color: var(--mut);
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.rev summary:hover {
+  color: var(--tx);
+}
+
+.rev p {
+  margin: 10px 0 6px;
+  white-space: pre-line;
+}
+
+.rev a {
+  color: var(--amber);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.rev a:hover {
+  text-decoration: underline;
+}
+
+/* Acervo */
+form.add {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 2fr 1.2fr auto;
+  margin-bottom: 24px;
+}
+
+input {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  color: var(--tx);
+  padding: 12px 14px;
+  border-radius: 10px;
+  font: 400 15px "Instrument Sans", sans-serif;
+  min-width: 0;
+}
+
+input:focus {
+  outline: 2px solid var(--amber);
+}
+
+.btn {
+  background: var(--amber);
+  color: var(--amber-ink);
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 18px;
+  font: 600 15px "Instrument Sans", sans-serif;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.btn:hover {
+  opacity: 0.95;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.list {
+  display: grid;
+  gap: 10px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 14px;
+  align-items: center;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 14px 10px 10px;
+}
+
+.row .poster {
+  padding: 4px;
+  font-size: 8px;
+  box-shadow: none;
+}
+
+.row b {
+  font: 800 17px "Bricolage Grotesque", sans-serif;
+}
+
+.vote {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--tx);
+  border-radius: 99px;
+  padding: 8px 14px;
+  font: 600 14px "Instrument Sans", sans-serif;
+  cursor: pointer;
+  min-width: 84px;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.vote[aria-pressed="true"] {
+  background: var(--amber);
+  color: var(--amber-ink);
+  border-color: var(--amber);
+}
+
+/* Membros */
+.members {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+.m {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.av {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font: 800 18px "Bricolage Grotesque", sans-serif;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.m a {
+  color: var(--amber);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.m a:hover {
+  text-decoration: underline;
+}
+
+/* Note / Footer */
+.note {
+  margin-top: 34px;
+  padding: 12px 14px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  color: var(--mut);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.footer-credits {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--mut);
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 760px) {
+  .det {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .ticket {
+    grid-template-columns: 1fr;
+  }
+  .ticket::before,
+  .ticket::after {
+    display: none;
+  }
+  .ticket .stub {
+    border-left: 0;
+    border-top: 2px dashed #2a0f1766;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+  }
+  form.add {
+    grid-template-columns: 1fr;
+  }
+  .watch .btn {
+    width: 100%;
+    margin-top: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

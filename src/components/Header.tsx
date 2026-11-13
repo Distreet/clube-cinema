@@ -6,7 +6,11 @@ import { ProfileModal } from './ProfileModal';
 
 type Theme = 'auto' | 'dark' | 'light';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  clubName?: string;
+}
+
+export const Header: React.FC<HeaderProps> = ({ clubName = 'Clube do Livro' }) => {
   const { profile, isAdmin, signOut, isConfigured, setDevUser } = useAuth();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -32,9 +36,9 @@ export const Header: React.FC = () => {
       <header>
         <div className="brand-group">
           <Link to="/" className="brand">
-            Clube do Livro
+            {clubName}
           </Link>
-          <small>nome provisório</small>
+          <small>{clubName === 'Clube do Livro' ? 'nome provisório' : 'clube de cinema'}</small>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>

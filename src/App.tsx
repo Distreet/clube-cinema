@@ -20,6 +20,7 @@ import { AdminPage } from './pages/AdminPage';
 
 const AppContent: React.FC = () => {
   const { profile } = useAuth();
+  const [clubName, setClubName] = useState<string>('Clube do Livro');
   const [cycle, setCycle] = useState<ActiveCycle | null>(initialActiveCycle);
   const [movies, setMovies] = useState<Movie[]>(mockMovies);
   const [suggestions, setSuggestions] = useState<Suggestion[]>(initialSuggestions);
@@ -47,6 +48,57 @@ const AppContent: React.FC = () => {
     });
   };
 
+  // Iniciar novo ciclo
+  const handleStartCycle = (newCycle: ActiveCycle) => {
+    setCycle(newCycle);
+    setSuggestions((prev) =>
+      prev.map((s) => (s.tmdbId === newCycle.tmdbId ? { ...s, status: 'chosen' } : s))
+    );
+  };
+
+  // Encerrar ciclo ativo
+  const handleFinishCycle = () => {
+    if (!cycle) return;
+    const existingMovie = movies.find((m) => m.tmdbId === cycle.tmdbId);
+    if (!existingMovie) {
+      const finishedMovie: Movie = {
+        id: `movie-${cycle.tmdbId}`,
+        tmdbId: cycle.tmdbId,
+        title: cycle.movie.title,
+        originalTitle: cycle.movie.originalTitle || cycle.movie.title,
+        year: cycle.movie.year,
+        director: cycle.movie.director,
+        genres: cycle.movie.genre,
+        castMain: 'Elenco oficial',
+        sessionMonth: `${cycle.deadlineMonth} ${new Date().getFullYear()}`,
+        overview: cycle.movie.overview,
+        bgGradient: 'linear-gradient(160deg, #2a0f17, #3a1722)',
+        posterUrl: cycle.movie.posterUrl,
+        backdropUrl: cycle.movie.backdropUrl,
+        letterboxdSlug: cycle.movie.title.toLowerCase().replace(/\s+/g, '-'),
+        whereToWatch: cycle.movie.whereToWatch,
+        reviews: [],
+      };
+      setMovies((prev) => [finishedMovie, ...prev]);
+    }
+    setSuggestions((prev) =>
+      prev.map((s) => (s.tmdbId === cycle.tmdbId ? { ...s, status: 'seen' } : s))
+    );
+    setCycle(null);
+  };
+
+  // Moderação de status do acervo
+  const handleUpdateSuggestionStatus = (suggestionId: string, status: Suggestion['status']) => {
+    setSuggestions((prev) =>
+      prev.map((s) => (s.id === suggestionId ? { ...s, status } : s))
+    );
+  };
+
+  // Remoção de sugestão indevida
+  const handleDeleteSuggestion = (suggestionId: string) => {
+    setSuggestions((prev) => prev.filter((s) => s.id !== suggestionId));
+  };
+
   // Add a new suggestion
   const handleAddSuggestion = (newSuggestion: Suggestion) => {
     setSuggestions((prev) => [newSuggestion, ...prev]);
@@ -70,13 +122,22 @@ const AppContent: React.FC = () => {
   // Salva ou edita a avaliação manual do filme pelo usuário logado
   const handleSaveReview = (movieId: string, rating: number, reviewText: string) => {
     const userName = profile?.displayName || 'Samuel';
+    handleSaveReviewForMember(movieId, userName, rating, reviewText);
+  };
 
+  // Salva ou edita a avaliação manual de qualquer membro (usado pelo Admin)
+  const handleSaveReviewForMember = (
+    movieId: string,
+    memberName: string,
+    rating: number,
+    reviewText: string
+  ) => {
     setMovies((prev) =>
       prev.map((m) => {
         if (m.id !== movieId && String(m.tmdbId) !== movieId) return m;
 
         const existingIdx = m.reviews.findIndex(
-          (r) => r.memberName.toLowerCase() === userName.toLowerCase()
+          (r) => r.memberName.toLowerCase() === memberName.toLowerCase()
         );
 
         let updatedReviews: Review[];
@@ -91,13 +152,14 @@ const AppContent: React.FC = () => {
               : r
           );
         } else {
+          const memObj = members.find((x) => x.name.toLowerCase() === memberName.toLowerCase());
           const newRev: Review = {
             id: `rev-${Date.now()}`,
-            memberName: userName,
+            memberName,
             rating,
             reviewText: reviewText || null,
-            letterboxdUrl: profile?.letterboxdUsername
-              ? `https://letterboxd.com/${profile.letterboxdUsername}/`
+            letterboxdUrl: memObj?.letterboxdUsername
+              ? `https://letterboxd.com/${memObj.letterboxdUsername}/`
               : null,
           };
           updatedReviews = [...m.reviews, newRev];
@@ -111,7 +173,7 @@ const AppContent: React.FC = () => {
   return (
     <BrowserRouter>
       <div className="wrap">
-        <Header />
+        <Header clubName={clubName} />
         <Navbar />
 
         <main id="main-content">
@@ -167,7 +229,24 @@ const AppContent: React.FC = () => {
               path="/membros"
               element={<MembrosPage members={members} />}
             />
-            <Route path="/admin" element={<AdminPage />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminPage
+                  cycle={cycle}
+                  movies={movies}
+                  suggestions={suggestions}
+                  members={members}
+                  onStartCycle={handleStartCycle}
+                  onFinishCycle={handleFinishCycle}
+                  onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
+                  onDeleteSuggestion={handleDeleteSuggestion}
+                  onSaveMemberReview={handleSaveReviewForMember}
+                  onUpdateClubName={(name) => setClubName(name)}
+                  clubName={clubName}
+                />
+              }
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

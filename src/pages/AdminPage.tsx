@@ -1,16 +1,87 @@
 import React, { useState, useEffect } from 'react';
+import type { ActiveCycle, Member, Movie, Suggestion } from '../types';
 import { useAuth } from '../contexts/AuthContext';
+import { MovieSearchAutocomplete } from '../components/MovieSearchAutocomplete';
+import { getTMDBImageUrl, getMovieDetails, formatRuntime } from '../services/tmdb';
 import { syncLetterboxdNow, fetchSyncLogs } from '../services/letterboxd';
 import type { SyncLogEntry, SyncResult } from '../services/letterboxd';
+import {
+  fetchAllowedEmailsList,
+  addAllowedEmail,
+  removeAllowedEmail,
+  saveClubNameSetting,
+} from '../services/admin';
+import type { AllowedEmailEntry } from '../services/admin';
 
-export const AdminPage: React.FC = () => {
+interface AdminPageProps {
+  cycle: ActiveCycle | null;
+  movies: Movie[];
+  suggestions: Suggestion[];
+  members: Member[];
+  onStartCycle: (newCycle: ActiveCycle) => void;
+  onFinishCycle: () => void;
+  onUpdateSuggestionStatus: (suggestionId: string, status: Suggestion['status']) => void;
+  onDeleteSuggestion: (suggestionId: string) => void;
+  onSaveMemberReview: (movieId: string, memberName: string, rating: number, text: string) => void;
+  onUpdateClubName: (name: string) => void;
+  clubName: string;
+}
+
+type AdminTab = 'cycles' | 'suggestions' | 'reviews' | 'members' | 'sync' | 'settings';
+
+export const AdminPage: React.FC<AdminPageProps> = ({
+  cycle,
+  movies,
+  suggestions,
+  members,
+  onStartCycle,
+  onFinishCycle,
+  onUpdateSuggestionStatus,
+  onDeleteSuggestion,
+  onSaveMemberReview,
+  onUpdateClubName,
+  clubName,
+}) => {
   const { isAdmin, profile } = useAuth();
+  const [activeTab, setActiveTab] = useState<AdminTab>('cycles');
+
+  // Estados da aba Ciclos
+  const [selectedFilmSource, setSelectedFilmSource] = useState<'suggestion' | 'tmdb'>('suggestion');
+  const [chosenSuggestionId, setChosenSuggestionId] = useState<string>(suggestions[0]?.id || '');
+  const [selectedTmdbMovie, setSelectedTmdbMovie] = useState<any>(null);
+  const [startDate, setStartDate] = useState(() => new Date().toISOString().substring(0, 10));
+  const [watchDeadline, setWatchDeadline] = useState(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 15);
+    return d.toISOString().substring(0, 10);
+  });
+  const [discussionDate, setDiscussionDate] = useState('');
+  const [cycleFeedback, setCycleFeedback] = useState<string | null>(null);
+
+  // Estados da aba Notas Manuais
+  const [reviewMovieId, setReviewMovieId] = useState<string>(movies[0]?.id || '');
+  const [reviewMemberName, setReviewMemberName] = useState<string>(members[0]?.name || '');
+  const [reviewRating, setReviewRating] = useState<number>(4.5);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewFeedback, setReviewFeedback] = useState<string | null>(null);
+
+  // Estados da aba Membros e Acesso
+  const [allowedEmails, setAllowedEmails] = useState<AllowedEmailEntry[]>([]);
+  const [newEmail, setNewEmail] = useState('');
+  const [emailFeedback, setEmailFeedback] = useState<string | null>(null);
+
+  // Estados da aba Letterboxd Sync
   const [logs, setLogs] = useState<SyncLogEntry[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncFeedback, setSyncFeedback] = useState<SyncResult | null>(null);
 
+  // Estados da aba Configurações
+  const [tempClubName, setTempClubName] = useState(clubName);
+  const [settingsFeedback, setSettingsFeedback] = useState<string | null>(null);
+
   useEffect(() => {
     if (isAdmin) {
+      fetchAllowedEmailsList().then(setAllowedEmails);
       fetchSyncLogs().then(setLogs);
     }
   }, [isAdmin]);
@@ -27,6 +98,135 @@ export const AdminPage: React.FC = () => {
     );
   }
 
+  // AÇÃO: Iniciar novo ciclo
+  const handleCreateCycle = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCycleFeedback(null);
+
+    let chosenTmdbId: number;
+    let title: string;
+    let director = 'Não informado';
+    let year = 2026;
+    let runtimeStr = '2h00';
+    let genreStr = 'Drama';
+    let overview = '';
+    let posterUrl: string | undefined;
+    let backdropUrl: string | undefined;
+    let whereToWatchData: any = null;
+
+    if (selectedFilmSource === 'suggestion') {
+      const sug = suggestions.find((s) => s.id === chosenSuggestionId);
+      if (!sug) {
+        setCycleFeedback('Selecione uma sugestão válida.');
+        return;
+      }
+      chosenTmdbId = sug.tmdbId;
+      title = sug.title;
+      director = sug.director || 'Não informado';
+      year = sug.year || 2026;
+      runtimeStr = sug.formattedRuntime || '2h00';
+      genreStr = sug.genres || 'Drama';
+      overview = sug.overview || '';
+      posterUrl = sug.posterUrl;
+      backdropUrl = sug.backdropUrl;
+      whereToWatchData = sug.whereToWatch;
+    } else {
+      if (!selectedTmdbMovie) {
+        setCycleFeedback('Busque e selecione um filme do TMDB.');
+        return;
+      }
+      chosenTmdbId = selectedTmdbMovie.id;
+      title = selectedTmdbMovie.title;
+      year = selectedTmdbMovie.year || 2026;
+      overview = selectedTmdbMovie.overview || '';
+      posterUrl = getTMDBImageUrl(selectedTmdbMovie.poster_path, 'w500');
+      backdropUrl = getTMDBImageUrl(selectedTmdbMovie.backdrop_path, 'w1280');
+
+      const details = await getMovieDetails(chosenTmdbId);
+      if (details?.movie) {
+        director = details.movie.director || director;
+        runtimeStr = formatRuntime(details.movie.runtime);
+        genreStr = Array.isArray(details.movie.genres) ? details.movie.genres.join(', ') : genreStr;
+        whereToWatchData = details.whereToWatch;
+      }
+    }
+
+    const deadlineD = new Date(watchDeadline + 'T12:00:00Z');
+    const day = deadlineD.getUTCDate();
+    const months = [
+      'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho',
+      'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'
+    ];
+    const month = months[deadlineD.getUTCMonth()] || '';
+
+    const newCycleObj: ActiveCycle = {
+      id: `cycle-${Date.now()}`,
+      tmdbId: chosenTmdbId,
+      movie: {
+        title,
+        director,
+        year,
+        runtime: runtimeStr,
+        genre: genreStr,
+        overview,
+        suggestedBy: 'Escolhido pela moderação',
+        tagText: 'Escolhido pelo grupo',
+        posterUrl,
+        backdropUrl,
+        whereToWatch: whereToWatchData,
+      },
+      deadlineDay: day,
+      deadlineMonth: month,
+      discussionNote: discussionDate
+        ? `depois, o papo em ${new Date(discussionDate + 'T12:00:00Z').toLocaleDateString('pt-BR')}`
+        : 'depois, o papo',
+      crew: members.map((m) => ({ memberName: m.name, watched: false })),
+    };
+
+    onStartCycle(newCycleObj);
+    setCycleFeedback(`Novo ciclo iniciado com sucesso para o filme "${title}"!`);
+  };
+
+  // AÇÃO: Salvar nota manual de um membro
+  const handleSaveMemberReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewMovieId || !reviewMemberName) return;
+
+    onSaveMemberReview(reviewMovieId, reviewMemberName, reviewRating, reviewText);
+    setReviewFeedback(`Avaliação de ${reviewMemberName} salva com sucesso!`);
+    setReviewText('');
+  };
+
+  // AÇÃO: Adicionar e-mail
+  const handleAddEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newEmail.trim()) return;
+
+    const res = await addAllowedEmail(newEmail.trim());
+    if (res.success) {
+      setAllowedEmails((prev) => [
+        ...prev,
+        { email: newEmail.trim().toLowerCase(), createdAt: new Date().toISOString().substring(0, 10), role: 'member' },
+      ]);
+      setNewEmail('');
+      setEmailFeedback('E-mail autorizado adicionado com sucesso!');
+    } else {
+      setEmailFeedback(res.error || 'Erro ao adicionar e-mail.');
+    }
+  };
+
+  // AÇÃO: Remover e-mail
+  const handleRemoveEmail = async (emailToRemove: string) => {
+    if (!window.confirm(`Tem certeza que deseja remover ${emailToRemove} da lista de permitidos?`)) return;
+
+    const res = await removeAllowedEmail(emailToRemove);
+    if (res.success) {
+      setAllowedEmails((prev) => prev.filter((e) => e.email !== emailToRemove));
+      setEmailFeedback(`E-mail ${emailToRemove} removido com sucesso.`);
+    }
+  };
+
+  // AÇÃO: Sincronizar Letterboxd
   const handleSyncNow = async () => {
     setIsSyncing(true);
     setSyncFeedback(null);
@@ -35,162 +235,659 @@ export const AdminPage: React.FC = () => {
     setIsSyncing(false);
     setSyncFeedback(result);
 
-    // Atualiza a lista de logs
     const updatedLogs = await fetchSyncLogs();
     setLogs(updatedLogs);
+  };
+
+  // AÇÃO: Salvar nome do clube
+  const handleSaveClubName = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = tempClubName.trim();
+    if (clean.length < 2) return;
+
+    const res = await saveClubNameSetting(clean);
+    if (res.success) {
+      onUpdateClubName(clean);
+      setSettingsFeedback('Nome do clube atualizado com sucesso!');
+    } else {
+      setSettingsFeedback(res.error || 'Erro ao salvar configuração.');
+    }
   };
 
   return (
     <section id="admin" aria-label="Painel administrativo">
       <h2>Painel administrativo</h2>
       <p className="lead">
-        Gerencie sincronizações do Letterboxd, ciclos, sugestões e membros do clube.
+        Gerencie os ciclos do clube, modere o acervo de sugestões, controle permissões e sincronizações.
       </p>
 
-      {/* Seção Letterboxd Sync */}
-      <div
-        style={{
-          background: 'var(--bg2)',
-          border: '1px solid var(--line)',
-          borderRadius: 14,
-          padding: 22,
-          marginBottom: 24,
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-          <div>
-            <h3 style={{ fontSize: 20, margin: 0 }}>Sincronização com o Letterboxd</h3>
-            <p className="mut" style={{ fontSize: 14, margin: '4px 0 0' }}>
-              Os feeds RSS são lidos automaticamente a cada 6 horas. Você também pode forçar uma sincronização manual a qualquer momento.
-            </p>
-          </div>
+      {/* Sub-navegação em pílulas do Admin */}
+      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', marginBottom: 24, paddingBottom: 6 }}>
+        <button
+          type="button"
+          className="chip"
+          data-done={activeTab === 'cycles'}
+          onClick={() => setActiveTab('cycles')}
+          style={{ cursor: 'pointer' }}
+        >
+          Ciclos e Sessões
+        </button>
+        <button
+          type="button"
+          className="chip"
+          data-done={activeTab === 'suggestions'}
+          onClick={() => setActiveTab('suggestions')}
+          style={{ cursor: 'pointer' }}
+        >
+          Acervo e Moderação
+        </button>
+        <button
+          type="button"
+          className="chip"
+          data-done={activeTab === 'reviews'}
+          onClick={() => setActiveTab('reviews')}
+          style={{ cursor: 'pointer' }}
+        >
+          Notas Manuais
+        </button>
+        <button
+          type="button"
+          className="chip"
+          data-done={activeTab === 'members'}
+          onClick={() => setActiveTab('members')}
+          style={{ cursor: 'pointer' }}
+        >
+          Membros e E-mails
+        </button>
+        <button
+          type="button"
+          className="chip"
+          data-done={activeTab === 'sync'}
+          onClick={() => setActiveTab('sync')}
+          style={{ cursor: 'pointer' }}
+        >
+          Letterboxd e Logs
+        </button>
+        <button
+          type="button"
+          className="chip"
+          data-done={activeTab === 'settings'}
+          onClick={() => setActiveTab('settings')}
+          style={{ cursor: 'pointer' }}
+        >
+          Configurações
+        </button>
+      </div>
 
-          <button
-            type="button"
-            className="btn"
-            onClick={handleSyncNow}
-            disabled={isSyncing}
-            style={{ padding: '10px 18px', fontSize: 14 }}
-          >
-            {isSyncing ? 'Sincronizando feeds...' : 'Sincronizar Letterboxd agora'}
-          </button>
-        </div>
-
-        {/* Feedback da sincronização */}
-        {syncFeedback && (
-          <div
-            style={{
-              marginTop: 16,
-              padding: 14,
-              borderRadius: 8,
-              background: syncFeedback.success ? '#2f8f6b22' : '#c0392b22',
-              border: `1px solid ${syncFeedback.success ? '#2f8f6b' : '#c0392b'}`,
-              color: 'var(--tx)',
-              fontSize: 14,
-            }}
-          >
-            <strong>{syncFeedback.success ? '✓ Sucesso:' : '✕ Erro:'}</strong>{' '}
-            {syncFeedback.message || syncFeedback.error}
-
-            {syncFeedback.summary && syncFeedback.summary.length > 0 && (
-              <div style={{ marginTop: 8, fontSize: 13 }}>
-                {syncFeedback.summary.map((s, i) => (
-                  <div key={i} style={{ color: s.error ? 'var(--rose)' : 'var(--mut)' }}>
-                    • <strong>{s.user}:</strong> {s.error ? `Falha (${s.error})` : `${s.synced} notas importadas`}
+      {/* ========================================================================= */}
+      {/* ABA 1: CICLOS E SESSÕES */}
+      {/* ========================================================================= */}
+      {activeTab === 'cycles' && (
+        <div style={{ display: 'grid', gap: 24 }}>
+          {/* Ciclo Ativo Atual */}
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--line)', borderRadius: 12, padding: 20 }}>
+            <h3 style={{ fontSize: 18, marginBottom: 12 }}>Ciclo ativo no momento</h3>
+            {cycle ? (
+              <div>
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                  {cycle.movie.posterUrl && (
+                    <img
+                      src={cycle.movie.posterUrl}
+                      alt=""
+                      style={{ width: 60, height: 90, borderRadius: 6, objectFit: 'cover' }}
+                    />
+                  )}
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <b style={{ fontSize: 18 }}>{cycle.movie.title}</b>
+                    <div className="mut" style={{ fontSize: 13, marginTop: 2 }}>
+                      {cycle.movie.director}, {cycle.movie.year} • Prazo: até {cycle.deadlineDay} de {cycle.deadlineMonth}
+                    </div>
+                    <div style={{ fontSize: 13, marginTop: 4 }}>
+                      Progresso: {cycle.crew.filter((c) => c.watched).length} de {cycle.crew.length} já assistiram
+                    </div>
                   </div>
-                ))}
+
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => {
+                      if (window.confirm('Deseja encerrar o ciclo ativo? O filme irá para o histórico Já vimos.')) {
+                        onFinishCycle();
+                        setCycleFeedback('Ciclo encerrado com sucesso!');
+                      }
+                    }}
+                    style={{ background: 'var(--rose)', color: '#fff' }}
+                  >
+                    Encerrar ciclo ativo
+                  </button>
+                </div>
               </div>
+            ) : (
+              <p className="mut" style={{ margin: 0, fontSize: 14 }}>
+                Nenhum ciclo ativo no momento. Utilize o formulário abaixo para iniciar uma nova rodada.
+              </p>
             )}
           </div>
-        )}
 
-        {/* Tabela de logs do sync_log */}
-        <div style={{ marginTop: 22 }}>
-          <h4 style={{ fontSize: 15, marginBottom: 10 }}>Histórico de sincronizações recentes (sync_log)</h4>
-          {logs.length === 0 ? (
-            <p className="mut" style={{ fontSize: 13 }}>Nenhum log registrado ainda.</p>
-          ) : (
-            <div style={{ display: 'grid', gap: 8 }}>
-              {logs.map((log) => {
-                const date = new Date(log.ranAt);
-                const formattedDate = date.toLocaleDateString('pt-BR', {
-                  day: '2-digit',
-                  month: '2-digit',
-                  year: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                });
+          {/* Iniciar Novo Ciclo */}
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--line)', borderRadius: 12, padding: 20 }}>
+            <h3 style={{ fontSize: 18, marginBottom: 12 }}>Iniciar novo ciclo</h3>
+            <form onSubmit={handleCreateCycle}>
+              <div style={{ marginBottom: 16 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--mut)', display: 'block', marginBottom: 8 }}>
+                  Origem do filme:
+                </span>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    type="button"
+                    className="chip"
+                    data-done={selectedFilmSource === 'suggestion'}
+                    onClick={() => setSelectedFilmSource('suggestion')}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    Escolher das sugestões do acervo
+                  </button>
+                  <button
+                    type="button"
+                    className="chip"
+                    data-done={selectedFilmSource === 'tmdb'}
+                    onClick={() => setSelectedFilmSource('tmdb')}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    Buscar novo no TMDB
+                  </button>
+                </div>
+              </div>
 
-                const isSuccess = log.status === 'success';
-
-                return (
-                  <div
-                    key={log.id}
+              {selectedFilmSource === 'suggestion' ? (
+                <div style={{ marginBottom: 16 }}>
+                  <label htmlFor="selectSuggestion" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--mut)', marginBottom: 6 }}>
+                    Filme do acervo:
+                  </label>
+                  <select
+                    id="selectSuggestion"
+                    value={chosenSuggestionId}
+                    onChange={(e) => setChosenSuggestionId(e.target.value)}
                     style={{
-                      display: 'flex',
-                      alignItems: 'baseline',
-                      justifyContent: 'space-between',
-                      gap: 12,
+                      width: '100%',
                       background: 'var(--bg)',
+                      color: 'var(--tx)',
                       border: '1px solid var(--line)',
                       borderRadius: 8,
-                      padding: '10px 14px',
-                      fontSize: 13,
-                      flexWrap: 'wrap',
+                      padding: 10,
+                      font: 'inherit',
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                      <span
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          padding: '2px 8px',
-                          borderRadius: 99,
-                          background: isSuccess ? '#2f8f6b33' : '#c0392b33',
-                          color: isSuccess ? '#2f8f6b' : 'var(--rose)',
-                        }}
-                      >
-                        {isSuccess ? 'Sucesso' : 'Erro'}
-                      </span>
-                      <strong style={{ color: 'var(--tx)' }}>{log.userName}:</strong>
-                      <span>{log.message}</span>
+                    {suggestions.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.title} ({s.year}) — {s.votes} votos (indicado por {s.suggestedBy})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : (
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--mut)', marginBottom: 6 }}>
+                    Buscar filme no TMDB:
+                  </label>
+                  <MovieSearchAutocomplete
+                    onSelectMovie={(m) => setSelectedTmdbMovie(m)}
+                    existingSuggestionsTmdbIds={[]}
+                    seenMoviesTmdbIds={[]}
+                  />
+                  {selectedTmdbMovie && (
+                    <div style={{ marginTop: 8, fontSize: 14, color: 'var(--amber)' }}>
+                      ✓ Selecionado: <strong>{selectedTmdbMovie.title}</strong> ({selectedTmdbMovie.year})
                     </div>
+                  )}
+                </div>
+              )}
 
-                    <span className="mut" style={{ fontSize: 12 }}>
-                      {formattedDate}
-                    </span>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 14, marginBottom: 16 }}>
+                <div>
+                  <label htmlFor="startDateInput" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--mut)', marginBottom: 6 }}>
+                    Data de início *
+                  </label>
+                  <input
+                    id="startDateInput"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    required
+                    style={{ width: '100%' }}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="deadlineInput" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--mut)', marginBottom: 6 }}>
+                    Assistir até (prazo) *
+                  </label>
+                  <input
+                    id="deadlineInput"
+                    type="date"
+                    value={watchDeadline}
+                    onChange={(e) => setWatchDeadline(e.target.value)}
+                    required
+                    style={{ width: '100%' }}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="discussionDateInput" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--mut)', marginBottom: 6 }}>
+                    Data da conversa (opcional)
+                  </label>
+                  <input
+                    id="discussionDateInput"
+                    type="date"
+                    value={discussionDate}
+                    onChange={(e) => setDiscussionDate(e.target.value)}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+              </div>
+
+              {cycleFeedback && (
+                <div style={{ marginBottom: 14, color: 'var(--amber)', fontWeight: 600, fontSize: 14 }}>
+                  {cycleFeedback}
+                </div>
+              )}
+
+              <button className="btn" type="submit">
+                Criar e ativar ciclo
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* ABA 2: ACERVO E MODERAÇÃO */}
+      {/* ========================================================================= */}
+      {activeTab === 'suggestions' && (
+        <div style={{ background: 'var(--bg2)', border: '1px solid var(--line)', borderRadius: 12, padding: 20 }}>
+          <h3 style={{ fontSize: 18, marginBottom: 12 }}>Gerenciar sugestões do acervo</h3>
+          <p className="mut" style={{ fontSize: 14, margin: '0 0 16px' }}>
+            Altere o status das sugestões ou remova itens indevidos.
+          </p>
+
+          <div style={{ display: 'grid', gap: 10 }}>
+            {suggestions.map((sug) => (
+              <div
+                key={sug.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                  background: 'var(--bg)',
+                  border: '1px solid var(--line)',
+                  borderRadius: 10,
+                  padding: '10px 14px',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 220, flex: 1 }}>
+                  {sug.posterUrl ? (
+                    <img src={sug.posterUrl} alt="" style={{ width: 36, height: 54, borderRadius: 4, objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ width: 36, height: 54, borderRadius: 4, background: 'var(--line)' }} />
+                  )}
+                  <div>
+                    <strong>{sug.title}</strong>
+                    <div className="mut" style={{ fontSize: 13 }}>
+                      {sug.year} • Indicado por {sug.suggestedBy} • {sug.votes} votos
+                    </div>
                   </div>
-                );
-              })}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <select
+                    value={sug.status}
+                    onChange={(e) => onUpdateSuggestionStatus(sug.id, e.target.value as Suggestion['status'])}
+                    style={{
+                      background: 'var(--bg2)',
+                      color: 'var(--tx)',
+                      border: '1px solid var(--line)',
+                      borderRadius: 6,
+                      padding: '4px 8px',
+                      fontSize: 13,
+                    }}
+                  >
+                    <option value="pending">Pendente (Ainda não vimos)</option>
+                    <option value="chosen">Escolhido para sessão</option>
+                    <option value="seen">Já vimos (Encerrado)</option>
+                    <option value="archived">Arquivado</option>
+                  </select>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm(`Tem certeza que deseja remover "${sug.title}" do acervo?`)) {
+                        onDeleteSuggestion(sug.id);
+                      }
+                    }}
+                    style={{
+                      background: 'none',
+                      border: '1px solid var(--rose)',
+                      color: 'var(--rose)',
+                      borderRadius: 6,
+                      padding: '4px 8px',
+                      cursor: 'pointer',
+                      fontSize: 12,
+                    }}
+                    title="Remover sugestão indevida"
+                  >
+                    Remover
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* ABA 3: NOTAS MANUAIS DE MEMBROS */}
+      {/* ========================================================================= */}
+      {activeTab === 'reviews' && (
+        <div style={{ background: 'var(--bg2)', border: '1px solid var(--line)', borderRadius: 12, padding: 20 }}>
+          <h3 style={{ fontSize: 18, marginBottom: 8 }}>Lançar nota manual para membro</h3>
+          <p className="mut" style={{ fontSize: 14, margin: '0 0 16px' }}>
+            Útil para cadastrar notas e críticas de membros que não utilizam o Letterboxd ou possuem perfil privado.
+          </p>
+
+          <form onSubmit={handleSaveMemberReviewSubmit} style={{ maxWidth: 500 }}>
+            <div style={{ marginBottom: 14 }}>
+              <label htmlFor="reviewMovieSelect" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--mut)', marginBottom: 6 }}>
+                Filme:
+              </label>
+              <select
+                id="reviewMovieSelect"
+                value={reviewMovieId}
+                onChange={(e) => setReviewMovieId(e.target.value)}
+                style={{ width: '100%', background: 'var(--bg)', color: 'var(--tx)', border: '1px solid var(--line)', borderRadius: 8, padding: 10, font: 'inherit' }}
+              >
+                {movies.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.title} ({m.sessionMonth})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 14 }}>
+              <label htmlFor="reviewMemberSelect" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--mut)', marginBottom: 6 }}>
+                Membro:
+              </label>
+              <select
+                id="reviewMemberSelect"
+                value={reviewMemberName}
+                onChange={(e) => setReviewMemberName(e.target.value)}
+                style={{ width: '100%', background: 'var(--bg)', color: 'var(--tx)', border: '1px solid var(--line)', borderRadius: 8, padding: 10, font: 'inherit' }}
+              >
+                {members.map((mem) => (
+                  <option key={mem.id} value={mem.name}>
+                    {mem.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 14 }}>
+              <label htmlFor="reviewRatingSelect" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--mut)', marginBottom: 6 }}>
+                Nota em estrelas:
+              </label>
+              <select
+                id="reviewRatingSelect"
+                value={reviewRating}
+                onChange={(e) => setReviewRating(Number(e.target.value))}
+                style={{ width: '100%', background: 'var(--bg)', color: 'var(--tx)', border: '1px solid var(--line)', borderRadius: 8, padding: 10, font: 'inherit' }}
+              >
+                {[0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0].map((v) => (
+                  <option key={v} value={v}>
+                    {v.toFixed(1).replace('.', ',')} estrelas (nota {(v * 2).toFixed(1).replace('.', ',')} no grupo)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label htmlFor="reviewTextInputAdmin" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--mut)', marginBottom: 6 }}>
+                Texto da crítica (opcional):
+              </label>
+              <textarea
+                id="reviewTextInputAdmin"
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+                rows={3}
+                placeholder="Comentário sobre o filme..."
+                style={{ width: '100%', background: 'var(--bg)', color: 'var(--tx)', border: '1px solid var(--line)', borderRadius: 8, padding: 10, font: 'inherit' }}
+              />
+            </div>
+
+            {reviewFeedback && (
+              <div style={{ marginBottom: 14, color: 'var(--amber)', fontWeight: 600, fontSize: 14 }}>
+                {reviewFeedback}
+              </div>
+            )}
+
+            <button className="btn" type="submit">
+              Salvar avaliação
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* ABA 4: MEMBROS E E-MAILS (allowed_emails) */}
+      {/* ========================================================================= */}
+      {activeTab === 'members' && (
+        <div style={{ background: 'var(--bg2)', border: '1px solid var(--line)', borderRadius: 12, padding: 20 }}>
+          <h3 style={{ fontSize: 18, marginBottom: 8 }}>Lista de e-mails permitidos (allowed_emails)</h3>
+          <p className="mut" style={{ fontSize: 14, margin: '0 0 16px' }}>
+            Apenas pessoas com e-mails cadastrados nesta lista conseguem criar conta ou receber link mágico.
+          </p>
+
+          <form onSubmit={handleAddEmail} style={{ display: 'flex', gap: 10, marginBottom: 20, maxWidth: 500 }}>
+            <input
+              type="email"
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              placeholder="novo.membro@exemplo.com"
+              required
+              style={{ flex: 1 }}
+            />
+            <button className="btn" type="submit">
+              Adicionar e-mail
+            </button>
+          </form>
+
+          {emailFeedback && (
+            <div style={{ marginBottom: 14, color: 'var(--amber)', fontWeight: 600, fontSize: 14 }}>
+              {emailFeedback}
             </div>
           )}
+
+          <div style={{ display: 'grid', gap: 8 }}>
+            {allowedEmails.map((entry) => (
+              <div
+                key={entry.email}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '10px 14px',
+                  background: 'var(--bg)',
+                  border: '1px solid var(--line)',
+                  borderRadius: 8,
+                  fontSize: 14,
+                }}
+              >
+                <div>
+                  <strong>{entry.email}</strong>
+                  {entry.profileName && (
+                    <span className="mut" style={{ marginLeft: 8, fontSize: 13 }}>
+                      ({entry.profileName})
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      padding: '2px 8px',
+                      borderRadius: 99,
+                      background: entry.role === 'admin' ? 'var(--amber)' : 'var(--line)',
+                      color: entry.role === 'admin' ? 'var(--amber-ink)' : 'inherit',
+                    }}
+                  >
+                    {entry.role === 'admin' ? 'Admin' : 'Membro'}
+                  </span>
+
+                  {entry.email !== 'samuel@example.com' && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveEmail(entry.email)}
+                      style={{
+                        background: 'none',
+                        border: 0,
+                        color: 'var(--rose)',
+                        cursor: 'pointer',
+                        fontSize: 13,
+                        fontWeight: 600,
+                      }}
+                    >
+                      Remover
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Outras áreas administrativas (preview das próximas fases) */}
-      <div style={{ display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-        <article className="m">
-          <h3 style={{ fontSize: 18, marginBottom: 8 }}>Ciclos e sessões</h3>
-          <p className="mut" style={{ fontSize: 14 }}>
-            Criar novos ciclos a partir das sugestões mais votadas, definir prazos e encerrar ciclos ativos.
-          </p>
-        </article>
+      {/* ========================================================================= */}
+      {/* ABA 5: LETTERBOXD E LOGS */}
+      {/* ========================================================================= */}
+      {activeTab === 'sync' && (
+        <div style={{ background: 'var(--bg2)', border: '1px solid var(--line)', borderRadius: 12, padding: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12, marginBottom: 16 }}>
+            <div>
+              <h3 style={{ fontSize: 18, margin: 0 }}>Sincronização com Letterboxd</h3>
+              <p className="mut" style={{ fontSize: 14, margin: '4px 0 0' }}>
+                Rotina agendada para rodar a cada 6 horas. Você também pode acionar manualmente.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="btn"
+              onClick={handleSyncNow}
+              disabled={isSyncing}
+            >
+              {isSyncing ? 'Sincronizando...' : 'Sincronizar Letterboxd agora'}
+            </button>
+          </div>
 
-        <article className="m">
-          <h3 style={{ fontSize: 18, marginBottom: 8 }}>Membros e permissões</h3>
-          <p className="mut" style={{ fontSize: 14 }}>
-            Gerenciar tabela <code>allowed_emails</code> e papéis (roles) dos membros.
-          </p>
-        </article>
+          {syncFeedback && (
+            <div
+              style={{
+                marginBottom: 16,
+                padding: 12,
+                borderRadius: 8,
+                background: syncFeedback.success ? '#2f8f6b22' : '#c0392b22',
+                border: `1px solid ${syncFeedback.success ? '#2f8f6b' : '#c0392b'}`,
+                color: 'var(--tx)',
+                fontSize: 14,
+              }}
+            >
+              <strong>{syncFeedback.success ? '✓' : '✕'}</strong> {syncFeedback.message || syncFeedback.error}
+            </div>
+          )}
 
-        <article className="m">
+          <h4 style={{ fontSize: 15, marginBottom: 10 }}>Logs de execução (sync_log)</h4>
+          <div style={{ display: 'grid', gap: 8 }}>
+            {logs.map((log) => (
+              <div
+                key={log.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                  background: 'var(--bg)',
+                  border: '1px solid var(--line)',
+                  borderRadius: 8,
+                  padding: '8px 12px',
+                  fontSize: 13,
+                }}
+              >
+                <div>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      padding: '2px 6px',
+                      borderRadius: 99,
+                      background: log.status === 'success' ? '#2f8f6b33' : '#c0392b33',
+                      color: log.status === 'success' ? '#2f8f6b' : 'var(--rose)',
+                      marginRight: 8,
+                    }}
+                  >
+                    {log.status === 'success' ? 'Sucesso' : 'Erro'}
+                  </span>
+                  <strong>{log.userName}:</strong> {log.message}
+                </div>
+                <span className="mut" style={{ fontSize: 12 }}>
+                  {new Date(log.ranAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* ABA 6: CONFIGURAÇÕES */}
+      {/* ========================================================================= */}
+      {activeTab === 'settings' && (
+        <div style={{ background: 'var(--bg2)', border: '1px solid var(--line)', borderRadius: 12, padding: 20, maxWidth: 500 }}>
           <h3 style={{ fontSize: 18, marginBottom: 8 }}>Configurações do clube</h3>
-          <p className="mut" style={{ fontSize: 14 }}>
-            Editar nome oficial do clube e configurações gerais salvas na tabela <code>settings</code>.
+          <p className="mut" style={{ fontSize: 14, margin: '0 0 16px' }}>
+            Personalize o nome exibido no topo e nas comunicações do clube.
           </p>
-        </article>
-      </div>
+
+          <form onSubmit={handleSaveClubName}>
+            <div style={{ marginBottom: 14 }}>
+              <label htmlFor="clubNameInput" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--mut)', marginBottom: 6 }}>
+                Nome do clube:
+              </label>
+              <input
+                id="clubNameInput"
+                type="text"
+                value={tempClubName}
+                onChange={(e) => setTempClubName(e.target.value)}
+                required
+                style={{ width: '100%' }}
+              />
+            </div>
+
+            {settingsFeedback && (
+              <div style={{ marginBottom: 14, color: 'var(--amber)', fontWeight: 600, fontSize: 14 }}>
+                {settingsFeedback}
+              </div>
+            )}
+
+            <button className="btn" type="submit">
+              Salvar nome do clube
+            </button>
+          </form>
+        </div>
+      )}
     </section>
   );
 };

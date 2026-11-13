@@ -37,15 +37,8 @@ export const App: React.FC = () => {
   };
 
   // Add a new suggestion
-  const handleAddSuggestion = (title: string, suggestedBy: string) => {
-    const newSug: Suggestion = {
-      id: `sug-${Date.now()}`,
-      title,
-      suggestedBy,
-      votes: 0,
-      hasVoted: false,
-    };
-    setSuggestions((prev) => [newSug, ...prev]);
+  const handleAddSuggestion = (newSuggestion: Suggestion) => {
+    setSuggestions((prev) => [newSuggestion, ...prev]);
   };
 
   // Toggle vote for a suggestion
@@ -107,6 +100,7 @@ export const App: React.FC = () => {
                 element={
                   <AcervoPage
                     suggestions={suggestions}
+                    seenTmdbIds={movies.map((m) => m.tmdbId)}
                     onAddSuggestion={handleAddSuggestion}
                     onToggleVote={handleToggleVote}
                   />

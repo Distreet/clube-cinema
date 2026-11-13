@@ -192,6 +192,19 @@ serve(async (req: Request) => {
         })),
       };
 
+      // Extrai trailer do YouTube se existir
+      const youtubeTrailer = raw.videos?.results?.find(
+        (v: any) =>
+          v.site === "YouTube" &&
+          (v.type === "Trailer" || v.type === "Teaser")
+      );
+      const trailerUrl = youtubeTrailer
+        ? `https://www.youtube.com/watch?v=${youtubeTrailer.key}`
+        : null;
+      const trailerEmbedUrl = youtubeTrailer
+        ? `https://www.youtube-nocookie.com/embed/${youtubeTrailer.key}`
+        : null;
+
       const moviePayload = {
         tmdb_id: tmdbId,
         title: raw.title || raw.original_title,
@@ -222,6 +235,8 @@ serve(async (req: Request) => {
         JSON.stringify({
           movie: savedMovie || moviePayload,
           where_to_watch: whereToWatch,
+          trailer_url: trailerUrl,
+          trailer_embed_url: trailerEmbedUrl,
           source: "tmdb-live",
         }),
         {

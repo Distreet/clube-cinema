@@ -47,6 +47,8 @@ export interface Movie {
   backdropUrl?: string;
   letterboxdSlug: string;
   whereToWatch?: WhereToWatchData;
+  trailerUrl?: string | null;
+  trailerEmbedUrl?: string | null;
   reviews: Review[];
 }
 
@@ -80,10 +82,27 @@ export interface ActiveCycle {
 
 export interface Suggestion {
   id: string;
+  tmdbId: number;
   title: string;
+  originalTitle?: string;
+  year?: number;
   suggestedBy: string;
+  suggestedByUserId?: string;
+  status: 'pending' | 'chosen' | 'seen' | 'archived';
   votes: number;
   hasVoted?: boolean;
+  posterUrl?: string;
+  backdropUrl?: string;
+  overview?: string;
+  director?: string;
+  castMain?: string;
+  genres?: string;
+  runtime?: number | null;
+  formattedRuntime?: string;
+  trailerUrl?: string | null;
+  trailerEmbedUrl?: string | null;
+  whereToWatch?: WhereToWatchData;
+  createdAt?: string;
 }
 
 export interface TMDBMovieSearchResult {

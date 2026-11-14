@@ -3,7 +3,7 @@ import type { Review } from '../types';
 import { formatStars } from '../utils/format';
 
 interface ExpandableReviewProps {
-  review: Review;
+  review: Review & { statusNote?: string };
 }
 
 export const ExpandableReview: React.FC<ExpandableReviewProps> = ({ review }) => {
@@ -22,12 +22,13 @@ export const ExpandableReview: React.FC<ExpandableReviewProps> = ({ review }) =>
           </span>
         ) : (
           <span className="mut" style={{ fontSize: 14 }}>
-            ainda não avaliou
+            {review.statusNote || 'ainda não avaliou'}
           </span>
         )}
       </div>
 
-      {review.reviewText && (
+      {/* Exibição da crítica e do link do Letterboxd */}
+      {review.reviewText ? (
         <details>
           <summary>Ler crítica (pode ter spoilers)</summary>
           <p>{review.reviewText}</p>
@@ -41,7 +42,19 @@ export const ExpandableReview: React.FC<ExpandableReviewProps> = ({ review }) =>
             </a>
           )}
         </details>
-      )}
+      ) : review.letterboxdUrl ? (
+        <div style={{ marginTop: 6 }}>
+          <a
+            href={review.letterboxdUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mut"
+            style={{ textDecoration: 'underline', fontSize: 13 }}
+          >
+            Ver no Letterboxd ↗
+          </a>
+        </div>
+      ) : null}
     </article>
   );
 };

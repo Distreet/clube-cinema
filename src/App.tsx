@@ -200,22 +200,29 @@ const AppContent: React.FC = () => {
 
         let updatedReviews: Review[];
         if (existingIdx >= 0) {
-          updatedReviews = m.reviews.map((r, i) =>
-            i === existingIdx
-              ? {
-                  ...r,
-                  rating,
-                  reviewText: reviewText || null,
-                }
-              : r
-          );
+          updatedReviews = m.reviews.map((r, i) => {
+            if (i !== existingIdx) return r;
+            const newText = reviewText.trim() !== '' ? reviewText.trim() : r.reviewText;
+            const fallbackUrl = members.find(
+              (x) => x.name.toLowerCase() === memberName.toLowerCase()
+            )?.letterboxdUsername
+              ? `https://letterboxd.com/${members.find((x) => x.name.toLowerCase() === memberName.toLowerCase())!.letterboxdUsername}/`
+              : null;
+
+            return {
+              ...r,
+              rating,
+              reviewText: newText,
+              letterboxdUrl: r.letterboxdUrl || fallbackUrl,
+            };
+          });
         } else {
           const memObj = members.find((x) => x.name.toLowerCase() === memberName.toLowerCase());
           const newRev: Review = {
             id: `rev-${Date.now()}`,
             memberName,
             rating,
-            reviewText: reviewText || null,
+            reviewText: reviewText.trim() !== '' ? reviewText.trim() : null,
             letterboxdUrl: memObj?.letterboxdUsername
               ? `https://letterboxd.com/${memObj.letterboxdUsername}/`
               : null,

@@ -43,7 +43,7 @@ export const initialActiveCycle: ActiveCycle = {
 };
 
 export const mockMovies: Movie[] = [
-  // 9. SETEMBRO 2026: Barbie e a Magia de Aladus (Tamires)
+  // 9. SETEMBRO 2026: Barbie e a Magia de Aladus (Tamires entrou no grupo)
   {
     id: 'barbie-aladus',
     tmdbId: 13459,
@@ -84,7 +84,7 @@ export const mockMovies: Movie[] = [
       {
         id: 'rev-barbie-luara',
         memberName: 'Luara',
-        rating: 4.0,
+        rating: 4.5,
         reviewText: 'Rendeu as melhores risadas e memórias da nossa sessão.',
         letterboxdUrl: 'https://letterboxd.com/luarasousa/film/barbie-and-the-magic-of-pegasus/',
       },
@@ -98,7 +98,7 @@ export const mockMovies: Movie[] = [
     ],
   },
 
-  // 8. AGOSTO 2026: Quem Quer Ser um Milionário? (Samuel)
+  // 8. AGOSTO 2026: Quem Quer Ser um Milionário? (Samuel & Luara)
   {
     id: 'milionario',
     tmdbId: 12405,
@@ -112,7 +112,7 @@ export const mockMovies: Movie[] = [
     letterboxdSlug: 'slumdog-millionaire',
     bgGradient: 'linear-gradient(160deg, #4d2b0e, #1c0e04)',
     posterUrl: 'https://image.tmdb.org/t/p/w500/5leCCi7ZF0CawAfM5Qo2ECKPprc.jpg',
-    backdropUrl: 'https://image.tmdb.org/t/p/w1280/p732e4dF6N6X0A6c0dE0A6e7T6.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/w1280/tXjkwbJEq9NxzRPiokjsi3CPNjI.jpg',
     overview:
       'Jamal Malik, um jovem de 18 anos órfão das favelas de Mumbai, está a uma pergunta de ganhar 20 milhões de rúpias na versão indiana de "Quem Quer Ser um Milionário?". Preso sob suspeita de trapaça, ele conta sua trajetória para provar sua inocência. Indicado por Samuel.',
     whereToWatch: {
@@ -136,27 +136,13 @@ export const mockMovies: Movie[] = [
         reviewText: 'Muito emocionante do começo ao fim, história amarrada com perfeição.',
         letterboxdUrl: 'https://letterboxd.com/luarasousa/film/slumdog-millionaire/',
       },
-      {
-        id: 'rev-mil-filipe',
-        memberName: 'Filipe',
-        rating: 4.0,
-        reviewText: 'Filme excelente, o ritmo não cansa em nenhum momento.',
-        letterboxdUrl: 'https://letterboxd.com/philipassoz/film/slumdog-millionaire/',
-      },
-      {
-        id: 'rev-mil-tamires',
-        memberName: 'Tamires',
-        rating: 4.5,
-        reviewText: 'Chorei e torci demais pelo Jamal. Maravilhoso!',
-        letterboxdUrl: 'https://letterboxd.com/tamintf/film/slumdog-millionaire/',
-      },
     ],
   },
 
-  // 7. JULHO 2026: Devorador de Estrelas (Luara)
+  // 7. JULHO 2026: Devorador de Estrelas (Samuel & Luara)
   {
     id: 'devorador-estrelas',
-    tmdbId: 787699,
+    tmdbId: 687163,
     title: 'O Devorador de Estrelas',
     originalTitle: 'Project Hail Mary',
     year: 2026,
@@ -166,8 +152,8 @@ export const mockMovies: Movie[] = [
     sessionMonth: 'jul 2026',
     letterboxdSlug: 'project-hail-mary',
     bgGradient: 'radial-gradient(circle at 72% 24%,#ffb347 0,#e8590c 13%,#16213e 14%,#0b1026 100%)',
-    posterUrl: 'https://image.tmdb.org/t/p/w500/39p6bK9gO2L8d1T6Q8u3n2b1a.jpg',
-    backdropUrl: 'https://image.tmdb.org/t/p/w1280/7O0Z7c4L5r8M2W6j4a3n1b2c.jpg',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/yihdXomYb5kTeSivtFndMy5iDmf.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/w1280/ezbrL1dMymKQZw7mDEWa2ZTzN7d.jpg',
     overview:
       'Um professor de ciências acorda sozinho numa nave, sem lembrar quem é nem por que está ali, e aos poucos descobre que sua missão é salvar a Terra de uma ameaça que está apagando o Sol. Indicado por Luara.',
     whereToWatch: {
@@ -192,24 +178,10 @@ export const mockMovies: Movie[] = [
         reviewText: 'Ciência virando pura aventura. Dei risada, me emocionei e saí querendo devorar o livro.',
         letterboxdUrl: 'https://letterboxd.com/Distreett/film/project-hail-mary/',
       },
-      {
-        id: 'rev-dev-filipe',
-        memberName: 'Filipe',
-        rating: 5.0,
-        reviewText: 'Curti demais a parte científica. Achei a segunda metade ainda melhor que a primeira.',
-        letterboxdUrl: 'https://letterboxd.com/philipassoz/film/project-hail-mary/',
-      },
-      {
-        id: 'rev-dev-tamires',
-        memberName: 'Tamires',
-        rating: 3.5,
-        reviewText: 'Gostei bastante, Ryan Gosling mandou super bem no papel.',
-        letterboxdUrl: 'https://letterboxd.com/tamintf/film/project-hail-mary/',
-      },
     ],
   },
 
-  // 6. JUNHO 2026: O Menino e a Garça (Samuel)
+  // 6. JUNHO 2026: O Menino e a Garça (Samuel & Luara)
   {
     id: 'menino-garca',
     tmdbId: 508883,
@@ -223,7 +195,7 @@ export const mockMovies: Movie[] = [
     letterboxdSlug: 'the-boy-and-the-heron',
     bgGradient: 'linear-gradient(160deg, #1b3b3a, #0d1f1f)',
     posterUrl: 'https://image.tmdb.org/t/p/w500/f4oZTcfGrVTXKTWg157AwikXqmP.jpg',
-    backdropUrl: 'https://image.tmdb.org/t/p/w1280/75aHgN1OGqWJm9r0T7a6Z2Z6h7X.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/w1280/f4oZTcfGrVTXKTWg157AwikXqmP.jpg',
     overview:
       'Durante a Segunda Guerra Mundial, o jovem Mahito perde a mãe e se muda para o campo com o pai. Lá ele encontra uma garça cinzenta falante e é guiado a uma torre mágica que leva a um mundo fantástico onde a vida e a morte se entrelaçam. Indicado por Samuel.',
     whereToWatch: {
@@ -247,24 +219,10 @@ export const mockMovies: Movie[] = [
         reviewText: 'Visualmente deslumbrante, como tudo do Studio Ghibli.',
         letterboxdUrl: 'https://letterboxd.com/luarasousa/film/the-boy-and-the-heron/',
       },
-      {
-        id: 'rev-garca-filipe',
-        memberName: 'Filipe',
-        rating: 4.5,
-        reviewText: 'Complexo e fascinante. Cada quadro parece uma pintura a óleo viva.',
-        letterboxdUrl: 'https://letterboxd.com/philipassoz/film/the-boy-and-the-heron/',
-      },
-      {
-        id: 'rev-garca-tamires',
-        memberName: 'Tamires',
-        rating: 4.0,
-        reviewText: 'Meio confuso no meio, mas a mensagem final e os Warawara são lindos!',
-        letterboxdUrl: 'https://letterboxd.com/tamintf/film/the-boy-and-the-heron/',
-      },
     ],
   },
 
-  // 5. MAIO 2026: Quatro Casamentos e um Funeral (Luara)
+  // 5. MAIO 2026: Quatro Casamentos e um Funeral (Samuel & Luara)
   {
     id: 'quatro-casamentos',
     tmdbId: 712,
@@ -278,7 +236,7 @@ export const mockMovies: Movie[] = [
     letterboxdSlug: 'four-weddings-and-a-funeral',
     bgGradient: 'linear-gradient(160deg, #2a2c3a, #1a1a24)',
     posterUrl: 'https://image.tmdb.org/t/p/w500/qa72G2VS0bpxms6yo0tI9vsHm2e.jpg',
-    backdropUrl: 'https://image.tmdb.org/t/p/w1280/7F0sLg4Cg2A7nO1T7T4Jq4K1z6U.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/w1280/xO7khpMXKK1boeAHG13N6mmwQ1Y.jpg',
     overview:
       'Charles é um inglês solteirão que sempre foge de compromisso. Ao longo de quatro casamentos e um funeral, ele conhece e se apaixona por Carrie, uma charmosa americana que vive cruzando seu caminho. Indicado por Luara.',
     whereToWatch: {
@@ -302,24 +260,10 @@ export const mockMovies: Movie[] = [
         reviewText: 'Hugh Grant no seu melhor momento nos anos 90. Divertido e comovente.',
         letterboxdUrl: 'https://letterboxd.com/Distreett/film/four-weddings-and-a-funeral/',
       },
-      {
-        id: 'rev-cas-filipe',
-        memberName: 'Filipe',
-        rating: 3.5,
-        reviewText: 'Comédia clássica muito gostosa de assistir.',
-        letterboxdUrl: 'https://letterboxd.com/philipassoz/film/four-weddings-and-a-funeral/',
-      },
-      {
-        id: 'rev-cas-tamires',
-        memberName: 'Tamires',
-        rating: 4.0,
-        reviewText: 'Adorei os personagens secundários, todos muito carismáticos!',
-        letterboxdUrl: 'https://letterboxd.com/tamintf/film/four-weddings-and-a-funeral/',
-      },
     ],
   },
 
-  // 4. ABRIL 2026: Brilho Eterno de Uma Mente Sem Lembranças (Samuel)
+  // 4. ABRIL 2026: Brilho Eterno de Uma Mente Sem Lembranças (Samuel & Luara)
   {
     id: 'brilho-eterno',
     tmdbId: 38,
@@ -332,8 +276,8 @@ export const mockMovies: Movie[] = [
     sessionMonth: 'abr 2026',
     letterboxdSlug: 'eternal-sunshine-of-the-spotless-mind',
     bgGradient: 'linear-gradient(160deg,#7fb2e0,#1d3557 62%,#e07a3f 135%)',
-    posterUrl: 'https://image.tmdb.org/t/p/w500/5MwkWH9tYHv3mV9OdYTMR5q9IzL.jpg',
-    backdropUrl: 'https://image.tmdb.org/t/p/w1280/7vyFjL8tQvU5o1Nq6s9C2A4i4l.jpg',
+    posterUrl: 'https://image.tmdb.org/t/p/w500/5MwkWH9tYHv3mV9OdYTMR5qreIz.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/w1280/8AE7M2lMsyvowfT36porzGtmOtI.jpg',
     overview:
       'Depois de um término doloroso, um homem descobre que a ex contratou um procedimento para apagar as memórias do relacionamento e decide fazer o mesmo. Indicado por Samuel.',
     whereToWatch: {
@@ -366,24 +310,10 @@ export const mockMovies: Movie[] = [
         reviewText: 'Choro todas as vezes. A química entre Jim Carrey e Kate Winslet é surreal.',
         letterboxdUrl: 'https://letterboxd.com/luarasousa/film/eternal-sunshine-of-the-spotless-mind/',
       },
-      {
-        id: 'rev-brilho-filipe',
-        memberName: 'Filipe',
-        rating: 4.5,
-        reviewText: 'A direção inventiva do Gondry aliada ao texto do Charlie Kaufman é genial.',
-        letterboxdUrl: 'https://letterboxd.com/philipassoz/film/eternal-sunshine-of-the-spotless-mind/',
-      },
-      {
-        id: 'rev-brilho-tamires',
-        memberName: 'Tamires',
-        rating: 4.5,
-        reviewText: 'Um soco no estômago sobre memória e amor.',
-        letterboxdUrl: 'https://letterboxd.com/tamintf/film/eternal-sunshine-of-the-spotless-mind/',
-      },
     ],
   },
 
-  // 3. MARÇO 2026: O Advogado do Diabo (Luara)
+  // 3. MARÇO 2026: O Advogado do Diabo (Samuel & Luara)
   {
     id: 'advogado-diabo',
     tmdbId: 1813,
@@ -421,24 +351,10 @@ export const mockMovies: Movie[] = [
         reviewText: 'O monólogo final do Al Pacino vale o filme inteiro. Suspense de primeira.',
         letterboxdUrl: 'https://letterboxd.com/Distreett/film/the-devils-advocate/',
       },
-      {
-        id: 'rev-adv-filipe',
-        memberName: 'Filipe',
-        rating: 4.0,
-        reviewText: 'Muito bom, Charlize Theron também dá um show dramático.',
-        letterboxdUrl: 'https://letterboxd.com/philipassoz/film/the-devils-advocate/',
-      },
-      {
-        id: 'rev-adv-tamires',
-        memberName: 'Tamires',
-        rating: 4.0,
-        reviewText: 'Fiquei tensa o filme todo. Excelente escolha para o clube.',
-        letterboxdUrl: 'https://letterboxd.com/tamintf/film/the-devils-advocate/',
-      },
     ],
   },
 
-  // 2. FEVEREIRO 2026: O Poderoso Chefão (Samuel)
+  // 2. FEVEREIRO 2026: O Poderoso Chefão (Samuel & Luara)
   {
     id: 'chefao',
     tmdbId: 238,
@@ -479,24 +395,10 @@ export const mockMovies: Movie[] = [
         reviewText: 'Absolutamente atemporal. A transformação de Michael Corleone é impecável.',
         letterboxdUrl: 'https://letterboxd.com/luarasousa/film/the-godfather/',
       },
-      {
-        id: 'rev-god-filipe',
-        memberName: 'Filipe',
-        rating: 5.0,
-        reviewText: 'O ápice da história do cinema.',
-        letterboxdUrl: 'https://letterboxd.com/philipassoz/film/the-godfather/',
-      },
-      {
-        id: 'rev-god-tamires',
-        memberName: 'Tamires',
-        rating: 4.5,
-        reviewText: 'Filmaço clássico, valeu cada minuto das quase três horas.',
-        letterboxdUrl: 'https://letterboxd.com/tamintf/film/the-godfather/',
-      },
     ],
   },
 
-  // 1. JANEIRO 2026: Os Infiltrados (Luara)
+  // 1. JANEIRO 2026: Os Infiltrados (Samuel & Luara)
   {
     id: 'infiltrados',
     tmdbId: 1422,
@@ -510,7 +412,7 @@ export const mockMovies: Movie[] = [
     letterboxdSlug: 'the-departed',
     bgGradient: 'linear-gradient(160deg, #1f1b24, #3a2e39)',
     posterUrl: 'https://image.tmdb.org/t/p/w500/nT97ifVT2J1yMQmeq20Qblg61T.jpg',
-    backdropUrl: 'https://image.tmdb.org/t/p/w1280/mDei0G08cW892uF6s9jM4sL8bX.jpg',
+    backdropUrl: 'https://image.tmdb.org/t/p/w1280/6WRrGYalXXveItfpnipYdayFkQB.jpg',
     overview:
       'A polícia de Boston trava uma verdadeira guerra contra o crime organizado. Billy Costigan, um jovem policial, recebe a missão de se infiltrar na máfia comandada por Frank Costello. Ao mesmo tempo, Colin Sullivan, um criminoso infiltrado na polícia, ascende na corporação. Indicado por Luara.',
     whereToWatch: {
@@ -533,20 +435,6 @@ export const mockMovies: Movie[] = [
         rating: 5.0,
         reviewText: 'Um dos melhores finais de filme policial de todos os tempos. Que abertura de ano!',
         letterboxdUrl: 'https://letterboxd.com/Distreett/film/the-departed/',
-      },
-      {
-        id: 'rev-inf-filipe',
-        memberName: 'Filipe',
-        rating: 4.5,
-        reviewText: 'DiCaprio e Matt Damon jogando no nível mais alto possível.',
-        letterboxdUrl: 'https://letterboxd.com/philipassoz/film/the-departed/',
-      },
-      {
-        id: 'rev-inf-tamires',
-        memberName: 'Tamires',
-        rating: 4.5,
-        reviewText: 'Adorei, fiquei sem fôlego em várias cenas!',
-        letterboxdUrl: 'https://letterboxd.com/tamintf/film/the-departed/',
       },
     ],
   },

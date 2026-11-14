@@ -84,6 +84,25 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncFeedback, setSyncFeedback] = useState<SyncResult | null>(null);
 
+  // Sincroniza a nota e o texto existentes ao selecionar filme/membro em Notas Manuais
+  useEffect(() => {
+    const movie = movies.find((m) => m.id === reviewMovieId);
+    if (movie) {
+      const existing = movie.reviews.find(
+        (r) => r.memberName.toLowerCase() === reviewMemberName.toLowerCase()
+      );
+      if (existing) {
+        if (existing.rating !== null && existing.rating !== undefined) {
+          setReviewRating(existing.rating);
+        }
+        setReviewText(existing.reviewText || '');
+      } else {
+        setReviewRating(4.5);
+        setReviewText('');
+      }
+    }
+  }, [reviewMovieId, reviewMemberName, movies]);
+
   // Estados da aba Configurações
   const [tempClubName, setTempClubName] = useState(clubName);
   const [settingsFeedback, setSettingsFeedback] = useState<string | null>(null);

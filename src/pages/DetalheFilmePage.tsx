@@ -51,18 +51,27 @@ export const DetalheFilmePage: React.FC<DetalheFilmePageProps> = ({
     : null;
 
   // Monta a lista completa com todos os membros do clube
-  // Membros que não avaliaram aparecem como "ainda não avaliou"
+  // Membros que não avaliaram aparecem como "ainda não avaliou" ou "não participava do clube nesta época"
   const memberReviewsList = members.map((mem) => {
     const existing = movie.reviews.find(
       (r) => r.memberName.toLowerCase() === mem.name.toLowerCase()
     );
     if (existing) return existing;
+
+    const isOldSession = [
+      'jan 2026', 'fev 2026', 'mar 2026', 'abr 2026',
+      'mai 2026', 'jun 2026', 'jul 2026', 'ago 2026'
+    ].includes(movie.sessionMonth.toLowerCase());
+
+    const isNewMember = ['filipe', 'tamires'].includes(mem.name.toLowerCase());
+
     return {
       id: `pending-${mem.id}`,
       memberName: mem.name,
       rating: null,
       reviewText: null,
       letterboxdUrl: null,
+      statusNote: isOldSession && isNewMember ? 'não participava do clube nesta época' : 'ainda não avaliou',
     };
   });
 

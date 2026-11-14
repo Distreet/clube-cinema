@@ -8,11 +8,16 @@ interface AwardCardProps {
 }
 
 export const AwardCard: React.FC<AwardCardProps> = ({ movies }) => {
-  const years = Array.from(new Set(movies.map((m) => m.year))).sort((a, b) => b - a);
+  const getSessionYear = (m: Movie) => {
+    const match = m.sessionMonth.match(/\d{4}/);
+    return match ? parseInt(match[0], 10) : m.year;
+  };
+
+  const years = Array.from(new Set(movies.map(getSessionYear))).sort((a, b) => b - a);
   const [selectedYear, setSelectedYear] = useState<number>(years[0] ?? 2026);
   const [imgFailed, setImgFailed] = useState(false);
 
-  const moviesInYear = movies.filter((m) => m.year === selectedYear);
+  const moviesInYear = movies.filter((m) => getSessionYear(m) === selectedYear);
   const scoredMovies = moviesInYear
     .map((m) => ({ movie: m, avg: calcGroupAverage(m.reviews) }))
     .filter((item): item is { movie: Movie; avg: number } => item.avg !== null);

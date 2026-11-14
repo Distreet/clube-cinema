@@ -171,7 +171,7 @@ const MOCK_TMDB_CATALOG: Record<
     original_title: 'The Departed',
     year: 2006,
     poster_path: '/nT97ifVT2J1yMQmeq20Qblg61T.jpg',
-    backdrop_path: '/mDei0G08cW892uF6s9jM4sL8bX.jpg',
+    backdrop_path: '/6WRrGYalXXveItfpnipYdayFkQB.jpg',
     overview:
       'A polícia de Boston trava uma verdadeira guerra contra o crime organizado. Billy Costigan, um jovem policial, recebe a missão de se infiltrar na máfia comandada por Frank Costello. Ao mesmo tempo, Colin Sullivan, um criminoso infiltrado na polícia, ascende na corporação.',
     runtime: 151,
@@ -236,8 +236,8 @@ const MOCK_TMDB_CATALOG: Record<
     title: 'Brilho Eterno de uma Mente sem Lembranças',
     original_title: 'Eternal Sunshine of the Spotless Mind',
     year: 2004,
-    poster_path: '/5MwkWH9tYHv3mV9OdYTMR5q9IzL.jpg',
-    backdrop_path: '/7vyFjL8tQvU5o1Nq6s9C2A4i4l.jpg',
+    poster_path: '/5MwkWH9tYHv3mV9OdYTMR5qreIz.jpg',
+    backdrop_path: '/8AE7M2lMsyvowfT36porzGtmOtI.jpg',
     overview:
       'Depois de um término doloroso, um homem descobre que a ex contratou um procedimento para apagar as memórias do relacionamento e decide fazer o mesmo.',
     runtime: 108,
@@ -259,7 +259,7 @@ const MOCK_TMDB_CATALOG: Record<
     original_title: 'Four Weddings and a Funeral',
     year: 1994,
     poster_path: '/qa72G2VS0bpxms6yo0tI9vsHm2e.jpg',
-    backdrop_path: '/7F0sLg4Cg2A7nO1T7T4Jq4K1z6U.jpg',
+    backdrop_path: '/xO7khpMXKK1boeAHG13N6mmwQ1Y.jpg',
     overview:
       'Charles é um inglês solteirão que sempre foge de compromisso. Ao longo de quatro casamentos e um funeral, ele conhece e se apaixona por Carrie, uma charmosa americana.',
     runtime: 117,
@@ -281,7 +281,7 @@ const MOCK_TMDB_CATALOG: Record<
     original_title: '君たちはどう生きるか',
     year: 2023,
     poster_path: '/f4oZTcfGrVTXKTWg157AwikXqmP.jpg',
-    backdrop_path: '/75aHgN1OGqWJm9r0T7a6Z2Z6h7X.jpg',
+    backdrop_path: '/f4oZTcfGrVTXKTWg157AwikXqmP.jpg',
     overview:
       'Durante a Segunda Guerra Mundial, o jovem Mahito perde a mãe e se muda para o campo. Lá ele encontra uma garça cinzenta falante e é guiado a uma torre mágica que leva a um mundo fantástico.',
     runtime: 124,
@@ -297,13 +297,13 @@ const MOCK_TMDB_CATALOG: Record<
       buy: [],
     },
   },
-  787699: {
-    id: 787699,
+  687163: {
+    id: 687163,
     title: 'O Devorador de Estrelas',
     original_title: 'Project Hail Mary',
     year: 2026,
-    poster_path: '/39p6bK9gO2L8d1T6Q8u3n2b1a.jpg',
-    backdrop_path: '/7O0Z7c4L5r8M2W6j4a3n1b2c.jpg',
+    poster_path: '/yihdXomYb5kTeSivtFndMy5iDmf.jpg',
+    backdrop_path: '/ezbrL1dMymKQZw7mDEWa2ZTzN7d.jpg',
     overview:
       'Um professor de ciências acorda sozinho numa nave, sem lembrar quem é nem por que está ali, e descobre que sua missão é salvar a Terra de uma catástrofe que está apagando o Sol.',
     runtime: 135,
@@ -326,7 +326,7 @@ const MOCK_TMDB_CATALOG: Record<
     original_title: 'Slumdog Millionaire',
     year: 2008,
     poster_path: '/5leCCi7ZF0CawAfM5Qo2ECKPprc.jpg',
-    backdrop_path: '/p732e4dF6N6X0A6c0dE0A6e7T6.jpg',
+    backdrop_path: '/tXjkwbJEq9NxzRPiokjsi3CPNjI.jpg',
     overview:
       'Jamal Malik, um jovem de 18 anos órfão das favelas de Mumbai, está a uma pergunta de ganhar 20 milhões de rúpias na versão indiana de "Quem Quer Ser um Milionário?".',
     runtime: 120,
@@ -441,12 +441,12 @@ export async function searchMovies(query: string): Promise<TMDBMovieSearchResult
       overview: 'Anos 1970, Rio de Janeiro. A rotina de uma família muda quando o pai é levado para depor.',
     },
     {
-      id: 787699,
+      id: 687163,
       title: 'O Devorador de Estrelas',
       original_title: 'Project Hail Mary',
       year: 2026,
-      poster_path: '/39p6bK9gO2L8d1T6Q8u3n2b1a.jpg',
-      backdrop_path: '/7O0Z7c4L5r8M2W6j4a3n1b2c.jpg',
+      poster_path: '/yihdXomYb5kTeSivtFndMy5iDmf.jpg',
+      backdrop_path: '/ezbrL1dMymKQZw7mDEWa2ZTzN7d.jpg',
       overview: 'Um professor acorda sozinho numa nave para salvar a Terra de uma catástrofe.',
     },
     {

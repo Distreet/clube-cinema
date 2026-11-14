@@ -26,6 +26,11 @@ export const Ticket: React.FC<TicketProps> = ({ cycle }) => {
   return (
     <article className="ticket" aria-label={`Ingresso da próxima sessão: ${movie.title}`}>
       <div className="main">
+        {movie.backdropUrl && (
+          <div className="ticket-banner">
+            <img src={movie.backdropUrl} alt={movie.title} loading="eager" />
+          </div>
+        )}
         {movie.tagText && <span className="tag">{movie.tagText}</span>}
         <h2>{movie.title}</h2>
         <div className="meta">

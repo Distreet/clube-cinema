@@ -1,0 +1,17 @@
+{
+  "name": "Clube do Livro - Cinema",
+  "short_name": "Clube Cinema",
+  "description": "Clube de cinema mensal do Samuel, Luara, Filipe e Tamires.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#18090d",
+  "theme_color": "#18090d",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

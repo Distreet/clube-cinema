@@ -34,7 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return {
         id: 'dev-samuel-id',
         displayName: 'Samuel',
-        letterboxdUsername: 'samuel',
+        letterboxdUsername: 'Distreett',
         role: 'admin',
       };
     }
@@ -114,10 +114,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (['samuel@example.com', 'luara@example.com', 'filipe@example.com', 'tamires@example.com'].includes(cleanEmail)) {
         const name = cleanEmail.split('@')[0];
         const capName = name.charAt(0).toUpperCase() + name.slice(1);
+        const letterboxdMap: Record<string, string> = {
+          samuel: 'Distreett',
+          luara: 'luarasousa',
+          filipe: 'philipassoz',
+          tamires: 'tamintf',
+        };
         setProfile({
           id: `dev-${name}-id`,
           displayName: capName,
-          letterboxdUsername: name,
+          letterboxdUsername: letterboxdMap[name] || name,
           role: cleanEmail === 'samuel@example.com' ? 'admin' : 'member',
         });
         return { error: null, message: 'Link mágico simulado enviado com sucesso!' };
@@ -213,14 +219,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile({
         id: 'dev-luara-id',
         displayName: 'Luara',
-        letterboxdUsername: 'luara',
+        letterboxdUsername: 'luarasousa',
         role: 'member',
       });
     } else {
       setProfile({
         id: 'dev-samuel-id',
         displayName: 'Samuel',
-        letterboxdUsername: 'samuel',
+        letterboxdUsername: 'Distreett',
         role: 'admin',
       });
     }

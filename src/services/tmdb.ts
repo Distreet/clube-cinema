@@ -389,13 +389,18 @@ const MOCK_TMDB_CATALOG: Record<
   },
 };
 
+// Chave ou token opcional para busca direta no TMDB sem depender de backend
+const tmdbClientApiKey = import.meta.env.VITE_TMDB_API_KEY || '';
+const tmdbClientReadToken = import.meta.env.VITE_TMDB_READ_TOKEN || '';
+
 /**
- * Busca filmes no TMDB com debounce através da Edge Function do Supabase
+ * Busca filmes no TMDB com debounce através da Edge Function do Supabase ou consulta direta
  */
 export async function searchMovies(query: string): Promise<TMDBMovieSearchResult[]> {
   const cleanQuery = query.trim();
   if (!cleanQuery) return [];
 
+  // 1. Tenta via Edge Function do Supabase (se configurado)
   if (isSupabaseConfigured) {
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -414,11 +419,40 @@ export async function searchMovies(query: string): Promise<TMDBMovieSearchResult
         return json.results || [];
       }
     } catch (err) {
-      console.warn('Erro ao chamar Edge Function do TMDB, usando catálogo local:', err);
+      console.warn('Erro ao chamar Edge Function do TMDB, tentando fallback:', err);
     }
   }
 
-  // Busca no catálogo mock local
+  // 2. Tenta consulta direta à API do TMDB caso a chave/token de leitura esteja no .env
+  if (tmdbClientApiKey || tmdbClientReadToken) {
+    try {
+      const headers: Record<string, string> = { Accept: 'application/json' };
+      let url = '';
+      if (tmdbClientReadToken) {
+        headers['Authorization'] = `Bearer ${tmdbClientReadToken}`;
+        url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(cleanQuery)}&language=pt-BR&page=1&include_adult=false`;
+      } else {
+        url = `https://api.themoviedb.org/3/search/movie?api_key=${tmdbClientApiKey}&query=${encodeURIComponent(cleanQuery)}&language=pt-BR&page=1&include_adult=false`;
+      }
+      const res = await fetch(url, { headers });
+      if (res.ok) {
+        const json = await res.json();
+        return (json.results || []).map((m: any) => ({
+          id: m.id,
+          title: m.title,
+          original_title: m.original_title,
+          year: m.release_date ? parseInt(m.release_date.substring(0, 4), 10) : 0,
+          poster_path: m.poster_path,
+          backdrop_path: m.backdrop_path,
+          overview: m.overview || '',
+        }));
+      }
+    } catch (err) {
+      console.warn('Erro ao buscar direto no TMDB:', err);
+    }
+  }
+
+  // 3. Fallback de busca no catálogo mock local expandido
   const localResults = Object.values(MOCK_TMDB_CATALOG).map((m) => ({
     id: m.id,
     title: m.title,
@@ -429,8 +463,71 @@ export async function searchMovies(query: string): Promise<TMDBMovieSearchResult
     overview: m.overview,
   }));
 
-  // Adiciona filmes adicionais para permitir busca variada
+  // Adiciona filmes adicionais para permitir busca variada no modo offline/sem chave
   const additionalMock: TMDBMovieSearchResult[] = [
+    {
+      id: 915935,
+      title: 'Anatomia de uma Queda',
+      original_title: "Anatomie d'une chute",
+      year: 2023,
+      poster_path: '/zIxTPoS6zd3txeLP5FUdo3CSfbo.jpg',
+      backdrop_path: '/kszooR7v1TLFM4pzx6IkKq2jDAN.jpg',
+      overview: 'Uma mulher é suspeita do assassinato do marido após ele cair da janela do chalé isolado nos Alpes.',
+    },
+    {
+      id: 965150,
+      title: 'Aftersun',
+      original_title: 'Aftersun',
+      year: 2022,
+      poster_path: '/4jdduww9j5RyzO4ITRcuBFhqNN1.jpg',
+      backdrop_path: '/5X9AAdtXFZIvbShkIqKvWqfwb3P.jpg',
+      overview: 'Sophie reflete sobre as férias que passou com seu pai vinte anos antes na Turquia.',
+    },
+    {
+      id: 496243,
+      title: 'Parasita',
+      original_title: '기생충',
+      year: 2019,
+      poster_path: '/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg',
+      backdrop_path: '/hiKmpZMGZsrkA3cdce8a7Dpos1j.jpg',
+      overview: 'Toda a família de Ki-taek está desempregada, vivendo num porão sujo e apertado.',
+    },
+    {
+      id: 603,
+      title: 'Matrix',
+      original_title: 'The Matrix',
+      year: 1999,
+      poster_path: '/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg',
+      backdrop_path: '/7c9UVPPiTPltouxShY9fEb9MiNb.jpg',
+      overview: 'Um programador descobre que a realidade como a conhecemos é uma simulação criada por máquinas.',
+    },
+    {
+      id: 1266,
+      title: 'O Auto da Compadecida',
+      original_title: 'O Auto da Compadecida',
+      year: 2000,
+      poster_path: '/m8fsWVDBGv99UM9asxRI4IMWJ9b.jpg',
+      backdrop_path: '/2wmiwN550gU5jO7oR9zX8L8o3Y1.jpg',
+      overview: 'As aventuras dos nordestinos João Grilo e Chicó, que vivem enganando o povo de uma pequena vila.',
+    },
+    {
+      id: 37165,
+      title: 'O Show de Truman',
+      original_title: 'The Truman Show',
+      year: 1998,
+      poster_path: '/vuza0W5Y239hqGIYYcuTncJWX92.jpg',
+      backdrop_path: '/i9lR2jLV0dHVfVs1u6QqqbQAE9I.jpg',
+      overview: 'Um pacato vendedor de seguros descobre que sua vida inteira é um reality show assistido por bilhões.',
+    },
+    {
+      id: 16869,
+      title: 'Bastardos Inglórios',
+      original_title: 'Inglourious Basterds',
+      year: 2009,
+      poster_path: '/7sfbEnaARXDD5UCEsoZ0OFVIapo.jpg',
+      backdrop_path: '/6Geq5Wb3W4k9O4bL8o3Y1n0fM5u.jpg',
+      overview: 'Durante a Segunda Guerra Mundial, um esquadrão de soldados judeus-americanos espalha o terror entre os nazistas.',
+    },
     {
       id: 1038263,
       title: 'Ainda Estou Aqui',
@@ -439,24 +536,6 @@ export async function searchMovies(query: string): Promise<TMDBMovieSearchResult
       poster_path: '/8d8H05f42L2XwT5R5iS8E9o2hM.jpg',
       backdrop_path: '/9l1dTaZ8jD1jA13Lp6j9n0fM5u.jpg',
       overview: 'Anos 1970, Rio de Janeiro. A rotina de uma família muda quando o pai é levado para depor.',
-    },
-    {
-      id: 687163,
-      title: 'O Devorador de Estrelas',
-      original_title: 'Project Hail Mary',
-      year: 2026,
-      poster_path: '/yihdXomYb5kTeSivtFndMy5iDmf.jpg',
-      backdrop_path: '/ezbrL1dMymKQZw7mDEWa2ZTzN7d.jpg',
-      overview: 'Um professor acorda sozinho numa nave para salvar a Terra de uma catástrofe.',
-    },
-    {
-      id: 238,
-      title: 'O Poderoso Chefão',
-      original_title: 'The Godfather',
-      year: 1972,
-      poster_path: '/3bhkrj58Vtu7enYsRolD1fZdja1.jpg',
-      backdrop_path: '/tmU7GeKVybMWF92PQopvyG6KyP8.jpg',
-      overview: 'O patriarca de uma dinastia do crime organizado transfere o controle para seu filho relutante.',
     },
     {
       id: 550,
@@ -521,6 +600,72 @@ export async function getMovieDetails(tmdbId: number): Promise<{
       }
     } catch (err) {
       console.warn('Falha na requisição de detalhes TMDB:', err);
+    }
+  }
+
+  // 2. Consulta direta caso haja chave TMDB no .env
+  if (tmdbClientApiKey || tmdbClientReadToken) {
+    try {
+      const headers: Record<string, string> = { Accept: 'application/json' };
+      let url = '';
+      if (tmdbClientReadToken) {
+        headers['Authorization'] = `Bearer ${tmdbClientReadToken}`;
+        url = `https://api.themoviedb.org/3/movie/${tmdbId}?language=pt-BR&append_to_response=credits,watch/providers,videos`;
+      } else {
+        url = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${tmdbClientApiKey}&language=pt-BR&append_to_response=credits,watch/providers,videos`;
+      }
+      const res = await fetch(url, { headers });
+      if (res.ok) {
+        const json = await res.json();
+        const providers = json['watch/providers']?.results?.BR || {};
+        const directorObj = (json.credits?.crew || []).find((c: any) => c.job === 'Director');
+        const castList = (json.credits?.cast || []).slice(0, 4).map((c: any) => c.name);
+        const genresList = (json.genres || []).map((g: any) => g.name);
+
+        const trailerObj = (json.videos?.results || []).find(
+          (v: any) => v.site === 'YouTube' && (v.type === 'Trailer' || v.type === 'Teaser')
+        );
+
+        return {
+          movie: {
+            tmdb_id: json.id,
+            title: json.title,
+            original_title: json.original_title,
+            year: json.release_date ? parseInt(json.release_date.substring(0, 4), 10) : 0,
+            poster_path: json.poster_path,
+            backdrop_path: json.backdrop_path,
+            overview: json.overview || '',
+            runtime: json.runtime || 0,
+            genres: genresList,
+            director: directorObj?.name || 'Diretor não informado',
+            cast_main: castList,
+          },
+          whereToWatch: {
+            link: providers.link || null,
+            streaming: (providers.flatrate || []).map((p: any) => ({
+              id: p.provider_id,
+              name: p.provider_name,
+              logo: p.logo_path ? `https://image.tmdb.org/t/p/w92${p.logo_path}` : null,
+            })),
+            rent: (providers.rent || []).map((p: any) => ({
+              id: p.provider_id,
+              name: p.provider_name,
+              logo: p.logo_path ? `https://image.tmdb.org/t/p/w92${p.logo_path}` : null,
+            })),
+            buy: (providers.buy || []).map((p: any) => ({
+              id: p.provider_id,
+              name: p.provider_name,
+              logo: p.logo_path ? `https://image.tmdb.org/t/p/w92${p.logo_path}` : null,
+            })),
+          },
+          trailerUrl: trailerObj ? `https://www.youtube.com/watch?v=${trailerObj.key}` : null,
+          trailerEmbedUrl: trailerObj
+            ? `https://www.youtube-nocookie.com/embed/${trailerObj.key}`
+            : null,
+        };
+      }
+    } catch (err) {
+      console.warn('Erro ao consultar detalhes no TMDB diretamente:', err);
     }
   }
 

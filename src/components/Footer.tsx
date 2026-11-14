@@ -2,12 +2,12 @@ import React from 'react';
 
 export const Footer: React.FC = () => {
   return (
-    <footer style={{ marginTop: 40 }}>
-      <div className="note">
-        Protótipo com dados de exemplo (Fase 0). Pôsteres e banners aqui são ilustrações, e as notas e críticas foram configuradas como mock. Na versão final, pôsteres, sinopses e onde assistir vêm do TMDB, as críticas vêm do Letterboxd de cada um, e tudo fica salvo no Supabase pro grupo todo.
+    <footer style={{ marginTop: 48, paddingBottom: 24, textAlign: 'center' }}>
+      <div style={{ color: 'var(--mut)', fontSize: 13, marginBottom: 6 }}>
+        Clube do Livro • Encontros de Cinema 2026
       </div>
-      <div className="footer-credits">
-        Dados de filmes: TMDB. Dados de onde assistir: JustWatch. Este produto usa a API do TMDB mas não é endossado nem certificado pelo TMDB.
+      <div className="footer-credits" style={{ fontSize: 11, color: 'var(--mut)', opacity: 0.8 }}>
+        Dados de filmes via TMDB • Onde assistir via JustWatch
       </div>
     </footer>
   );

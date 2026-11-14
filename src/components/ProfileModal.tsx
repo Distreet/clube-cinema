@@ -17,10 +17,29 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
   const [letterboxdUsername, setLetterboxdUsername] = useState(
     profile?.letterboxdUsername || ''
   );
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(profile?.avatarUrl || null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (!isOpen) return null;
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2.5 * 1024 * 1024) {
+      setError('A imagem deve ter no máximo 2.5 MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      setAvatarUrl(dataUrl);
+      setError(null);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +51,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
     const res = await updateProfile({
       displayName: displayName.trim(),
       letterboxdUsername: letterboxdUsername.trim() || undefined,
+      avatarUrl,
     });
     setLoading(false);
 
@@ -100,6 +120,77 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
         </p>
 
         <form onSubmit={handleSubmit}>
+          {/* Foto de Perfil */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: '50%',
+                background: 'var(--amber)',
+                color: 'var(--amber-ink)',
+                display: 'grid',
+                placeItems: 'center',
+                fontWeight: 800,
+                fontSize: 24,
+                overflow: 'hidden',
+                flexShrink: 0,
+                boxShadow: '0 2px 8px #0004',
+                border: '2px solid var(--line)',
+              }}
+            >
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={displayName || 'Perfil'}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                (displayName || 'U').charAt(0)
+              )}
+            </div>
+            <div>
+              <label
+                className="btn alt"
+                style={{
+                  fontSize: 12,
+                  padding: '6px 12px',
+                  cursor: 'pointer',
+                  display: 'inline-block',
+                  marginBottom: 4,
+                }}
+              >
+                Escolher foto
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+              </label>
+              {avatarUrl && (
+                <button
+                  type="button"
+                  onClick={() => setAvatarUrl(null)}
+                  style={{
+                    display: 'block',
+                    background: 'none',
+                    border: 0,
+                    color: 'var(--rose)',
+                    fontSize: 11,
+                    cursor: 'pointer',
+                    padding: 0,
+                  }}
+                >
+                  Remover foto
+                </button>
+              )}
+              <div style={{ fontSize: 11, color: 'var(--mut)', marginTop: 2 }}>
+                JPG ou PNG até 2.5 MB
+              </div>
+            </div>
+          </div>
+
           <div style={{ marginBottom: 14 }}>
             <label
               htmlFor="displayName"

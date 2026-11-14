@@ -5,6 +5,8 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 export interface UserProfile {
   id: string;
   displayName: string;
+  email?: string;
+  avatarUrl?: string | null;
   letterboxdUsername: string | null;
   role: 'member' | 'admin';
   createdAt?: string;
@@ -22,7 +24,11 @@ interface AuthContextType {
     password?: string
   ) => Promise<{ error: Error | null; message?: string; needsPassword?: boolean }>;
   signOut: () => Promise<void>;
-  updateProfile: (data: { displayName: string; letterboxdUsername?: string }) => Promise<{ error: Error | null }>;
+  updateProfile: (data: {
+    displayName: string;
+    letterboxdUsername?: string;
+    avatarUrl?: string | null;
+  }) => Promise<{ error: Error | null }>;
   // Modo de teste para desenvolvimento local sem variáveis live:
   setDevUser: (role: 'guest' | 'member' | 'admin') => void;
 }
@@ -215,27 +221,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(null);
   };
 
-  const updateProfile = async (data: { displayName: string; letterboxdUsername?: string }) => {
+  const updateProfile = async (data: {
+    displayName: string;
+    letterboxdUsername?: string;
+    avatarUrl?: string | null;
+  }) => {
     if (!profile) return { error: new Error('Nenhum usuário logado.') };
 
     const cleanDisplay = data.displayName.trim();
     const cleanLetterboxd = data.letterboxdUsername?.trim() || null;
+    const cleanAvatar = data.avatarUrl !== undefined ? data.avatarUrl : profile.avatarUrl;
 
     if (cleanDisplay.length < 2) {
       return { error: new Error('O nome de exibição deve ter pelo menos 2 caracteres.') };
     }
 
+    const updated: UserProfile = {
+      ...profile,
+      displayName: cleanDisplay,
+      letterboxdUsername: cleanLetterboxd,
+      avatarUrl: cleanAvatar,
+      isFirstAccess: false,
+    };
+
+    localStorage.setItem('clube_user_profile', JSON.stringify(updated));
+    setProfile(updated);
+
     if (!isSupabaseConfigured) {
-      setProfile((prev) =>
-        prev
-          ? {
-              ...prev,
-              displayName: cleanDisplay,
-              letterboxdUsername: cleanLetterboxd,
-              isFirstAccess: false,
-            }
-          : null
-      );
       return { error: null };
     }
 
@@ -245,21 +257,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .update({
           display_name: cleanDisplay,
           letterboxd_username: cleanLetterboxd,
+          avatar_url: cleanAvatar,
         })
         .eq('id', profile.id);
 
       if (error) return { error };
-
-      setProfile((prev) =>
-        prev
-          ? {
-              ...prev,
-              displayName: cleanDisplay,
-              letterboxdUsername: cleanLetterboxd,
-              isFirstAccess: false,
-            }
-          : null
-      );
       return { error: null };
     } catch (err) {
       return { error: err as Error };

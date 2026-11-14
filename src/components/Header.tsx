@@ -38,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({ clubName = 'Clube do Livro' }) =
           <Link to="/" className="brand">
             {clubName}
           </Link>
-          <small>{clubName === 'Clube do Livro' ? 'nome provisório' : 'clube de cinema'}</small>
+          <small>clube de cinema</small>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
@@ -84,9 +84,18 @@ export const Header: React.FC<HeaderProps> = ({ clubName = 'Clube do Livro' }) =
                     placeItems: 'center',
                     fontWeight: 800,
                     fontSize: 12,
+                    overflow: 'hidden',
                   }}
                 >
-                  {profile.displayName.charAt(0)}
+                  {profile.avatarUrl ? (
+                    <img
+                      src={profile.avatarUrl}
+                      alt={profile.displayName}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    profile.displayName.charAt(0)
+                  )}
                 </span>
                 <span>{profile.displayName}</span>
               </button>

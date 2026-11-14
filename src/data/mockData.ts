@@ -1,10 +1,10 @@
 import type { ActiveCycle, Member, Movie, Suggestion } from '../types';
 
 export const mockMembers: Member[] = [
-  { id: '1', name: 'Samuel', letterboxdUsername: 'Distreett', color: '#c0392b' },
-  { id: '2', name: 'Luara', letterboxdUsername: 'luarasousa', color: '#2e6f8e' },
-  { id: '3', name: 'Filipe', letterboxdUsername: 'philipassoz', color: '#7d5ba6' },
-  { id: '4', name: 'Tamires', letterboxdUsername: 'tamintf', color: '#d98a2b' },
+  { id: '1', name: 'Samuel', email: 'samuelnasc2805@gmail.com', letterboxdUsername: 'Distreett', color: '#c0392b' },
+  { id: '2', name: 'Luara', email: 'luara@example.com', letterboxdUsername: 'luarasousa', color: '#2e6f8e' },
+  { id: '3', name: 'Filipe', email: 'filipe@example.com', letterboxdUsername: 'philipassoz', color: '#7d5ba6' },
+  { id: '4', name: 'Tamires', email: 'tamires@example.com', letterboxdUsername: 'tamintf', color: '#d98a2b' },
 ];
 
 export const initialActiveCycle: ActiveCycle = {
@@ -70,21 +70,14 @@ export const mockMovies: Movie[] = [
       {
         id: 'rev-barbie-tamires',
         memberName: 'Tamires',
-        rating: 4.5,
+        rating: 4.0,
         reviewText: 'Nostalgia pura! Minha infância todinha nessa história e na trilha sonora.',
         letterboxdUrl: 'https://letterboxd.com/tamintf/film/barbie-and-the-magic-of-pegasus/',
       },
       {
-        id: 'rev-barbie-samuel',
-        memberName: 'Samuel',
-        rating: 3.5,
-        reviewText: 'Foi muito divertido ver com o grupo. Uma viagem aos anos 2000.',
-        letterboxdUrl: 'https://letterboxd.com/Distreett/film/barbie-and-the-magic-of-pegasus/',
-      },
-      {
         id: 'rev-barbie-luara',
         memberName: 'Luara',
-        rating: 4.5,
+        rating: 3.5,
         reviewText: 'Rendeu as melhores risadas e memórias da nossa sessão.',
         letterboxdUrl: 'https://letterboxd.com/luarasousa/film/barbie-and-the-magic-of-pegasus/',
       },
@@ -94,6 +87,13 @@ export const mockMovies: Movie[] = [
         rating: 3.0,
         reviewText: 'Surpreendentemente épico para um filme da Barbie.',
         letterboxdUrl: 'https://letterboxd.com/philipassoz/film/barbie-and-the-magic-of-pegasus/',
+      },
+      {
+        id: 'rev-barbie-samuel',
+        memberName: 'Samuel',
+        rating: 2.5,
+        reviewText: 'Foi muito divertido ver com o grupo. Uma viagem aos anos 2000.',
+        letterboxdUrl: 'https://letterboxd.com/Distreett/film/barbie-and-the-magic-of-pegasus/',
       },
     ],
   },
@@ -125,14 +125,14 @@ export const mockMovies: Movie[] = [
       {
         id: 'rev-mil-samuel',
         memberName: 'Samuel',
-        rating: 4.5,
+        rating: 3.0,
         reviewText: 'A montagem desse filme é uma aula de cinema. A energia e a trilha sonora são contagiantes.',
         letterboxdUrl: 'https://letterboxd.com/Distreett/film/slumdog-millionaire/',
       },
       {
         id: 'rev-mil-luara',
         memberName: 'Luara',
-        rating: 4.5,
+        rating: 3.0,
         reviewText: 'Muito emocionante do começo ao fim, história amarrada com perfeição.',
         letterboxdUrl: 'https://letterboxd.com/luarasousa/film/slumdog-millionaire/',
       },
@@ -165,18 +165,18 @@ export const mockMovies: Movie[] = [
     },
     reviews: [
       {
-        id: 'rev-dev-luara',
-        memberName: 'Luara',
-        rating: 4.0,
-        reviewText: 'Muito bonito de ver e com um humor na medida certa. Vale muito a pena.',
-        letterboxdUrl: 'https://letterboxd.com/luarasousa/film/project-hail-mary/',
-      },
-      {
         id: 'rev-dev-samuel',
         memberName: 'Samuel',
-        rating: 4.5,
+        rating: 4.0,
         reviewText: 'Ciência virando pura aventura. Dei risada, me emocionei e saí querendo devorar o livro.',
         letterboxdUrl: 'https://letterboxd.com/Distreett/film/project-hail-mary/',
+      },
+      {
+        id: 'rev-dev-luara',
+        memberName: 'Luara',
+        rating: 3.5,
+        reviewText: 'Muito bonito de ver e com um humor na medida certa. Vale muito a pena.',
+        letterboxdUrl: 'https://letterboxd.com/luarasousa/film/project-hail-mary/',
       },
     ],
   },
@@ -206,18 +206,18 @@ export const mockMovies: Movie[] = [
     },
     reviews: [
       {
-        id: 'rev-garca-samuel',
-        memberName: 'Samuel',
-        rating: 5.0,
-        reviewText: 'Uma obra de arte visual e existencial do mestre Miyazaki. Profundo e poético.',
-        letterboxdUrl: 'https://letterboxd.com/Distreett/film/the-boy-and-the-heron/',
-      },
-      {
         id: 'rev-garca-luara',
         memberName: 'Luara',
-        rating: 4.5,
+        rating: 4.0,
         reviewText: 'Visualmente deslumbrante, como tudo do Studio Ghibli.',
         letterboxdUrl: 'https://letterboxd.com/luarasousa/film/the-boy-and-the-heron/',
+      },
+      {
+        id: 'rev-garca-samuel',
+        memberName: 'Samuel',
+        rating: 3.5,
+        reviewText: 'Uma obra de arte visual e existencial do mestre Miyazaki. Profundo e poético.',
+        letterboxdUrl: 'https://letterboxd.com/Distreett/film/the-boy-and-the-heron/',
       },
     ],
   },
@@ -247,18 +247,18 @@ export const mockMovies: Movie[] = [
     },
     reviews: [
       {
-        id: 'rev-cas-luara',
-        memberName: 'Luara',
-        rating: 4.5,
-        reviewText: 'O humor britânico no seu ápice. Um clássico aconchegante que sempre faz bem assistir.',
-        letterboxdUrl: 'https://letterboxd.com/luarasousa/film/four-weddings-and-a-funeral/',
-      },
-      {
         id: 'rev-cas-samuel',
         memberName: 'Samuel',
-        rating: 4.0,
+        rating: 2.0,
         reviewText: 'Hugh Grant no seu melhor momento nos anos 90. Divertido e comovente.',
         letterboxdUrl: 'https://letterboxd.com/Distreett/film/four-weddings-and-a-funeral/',
+      },
+      {
+        id: 'rev-cas-luara',
+        memberName: 'Luara',
+        rating: 3.0,
+        reviewText: 'O humor britânico no seu ápice. Um clássico aconchegante que sempre faz bem assistir.',
+        letterboxdUrl: 'https://letterboxd.com/luarasousa/film/four-weddings-and-a-funeral/',
       },
     ],
   },
@@ -299,14 +299,14 @@ export const mockMovies: Movie[] = [
       {
         id: 'rev-brilho-samuel',
         memberName: 'Samuel',
-        rating: 5.0,
+        rating: 4.0,
         reviewText: 'Um dos melhores roteiros já escritos. Doloroso, lindo e inesquecível a cada reassistida.',
         letterboxdUrl: 'https://letterboxd.com/Distreett/film/eternal-sunshine-of-the-spotless-mind/',
       },
       {
         id: 'rev-brilho-luara',
         memberName: 'Luara',
-        rating: 5.0,
+        rating: 4.0,
         reviewText: 'Choro todas as vezes. A química entre Jim Carrey e Kate Winslet é surreal.',
         letterboxdUrl: 'https://letterboxd.com/luarasousa/film/eternal-sunshine-of-the-spotless-mind/',
       },
@@ -338,18 +338,18 @@ export const mockMovies: Movie[] = [
     },
     reviews: [
       {
-        id: 'rev-adv-luara',
-        memberName: 'Luara',
-        rating: 4.5,
-        reviewText: 'Al Pacino entregando uma das atuações mais teatrais e magnéticas da história!',
-        letterboxdUrl: 'https://letterboxd.com/luarasousa/film/the-devils-advocate/',
-      },
-      {
         id: 'rev-adv-samuel',
         memberName: 'Samuel',
-        rating: 4.5,
+        rating: 2.5,
         reviewText: 'O monólogo final do Al Pacino vale o filme inteiro. Suspense de primeira.',
         letterboxdUrl: 'https://letterboxd.com/Distreett/film/the-devils-advocate/',
+      },
+      {
+        id: 'rev-adv-luara',
+        memberName: 'Luara',
+        rating: 3.0,
+        reviewText: 'Al Pacino entregando uma das atuações mais teatrais e magnéticas da história!',
+        letterboxdUrl: 'https://letterboxd.com/luarasousa/film/the-devils-advocate/',
       },
     ],
   },
@@ -425,14 +425,14 @@ export const mockMovies: Movie[] = [
       {
         id: 'rev-inf-luara',
         memberName: 'Luara',
-        rating: 5.0,
+        rating: 4.0,
         reviewText: 'Scorsese no seu auge moderno. Tensão do início ao fim e um elenco espetacular.',
         letterboxdUrl: 'https://letterboxd.com/luarasousa/film/the-departed/',
       },
       {
         id: 'rev-inf-samuel',
         memberName: 'Samuel',
-        rating: 5.0,
+        rating: 4.0,
         reviewText: 'Um dos melhores finais de filme policial de todos os tempos. Que abertura de ano!',
         letterboxdUrl: 'https://letterboxd.com/Distreett/film/the-departed/',
       },

@@ -7,13 +7,18 @@ interface LoginModalProps {
 }
 
 export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
-  const { signInWithOtp, isConfigured } = useAuth();
+  const { signInWithOtp } = useAuth();
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [sentMessage, setSentMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
+
+  const isSamuelEmail =
+    email.trim().toLowerCase() === 'samuelnasc2805@gmail.com' ||
+    email.trim().toLowerCase() === 'samuel@example.com' ||
+    email.trim().toLowerCase() === 'samuel';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,15 +26,43 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
     setLoading(true);
     setErrorMessage(null);
-    setSentMessage(null);
 
-    const { error, message } = await signInWithOtp(email);
+    const { error, needsPassword } = await signInWithOtp(email, password);
     setLoading(false);
 
     if (error) {
       setErrorMessage(error.message);
+    } else if (needsPassword) {
+      setErrorMessage('Por favor, informe a senha de administrador (12345).');
     } else {
-      setSentMessage(message || 'Enviamos um link mágico para o seu e-mail!');
+      // Login bem-sucedido: fecha o modal
+      onClose();
+    }
+  };
+
+  const handleQuickSelect = async (memberEmail: string, memberPassword?: string) => {
+    setEmail(memberEmail);
+    setErrorMessage(null);
+    if (memberPassword) {
+      setPassword(memberPassword);
+      setLoading(true);
+      const { error } = await signInWithOtp(memberEmail, memberPassword);
+      setLoading(false);
+      if (error) {
+        setErrorMessage(error.message);
+      } else {
+        onClose();
+      }
+    } else {
+      setPassword('');
+      setLoading(true);
+      const { error } = await signInWithOtp(memberEmail);
+      setLoading(false);
+      if (error) {
+        setErrorMessage(error.message);
+      } else {
+        onClose();
+      }
     }
   };
 
@@ -86,77 +119,129 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
           Entrar no clube
         </h3>
         <p className="lead" style={{ fontSize: 14, marginBottom: 20 }}>
-          Digite seu e-mail cadastrado. Você receberá um link mágico para acessar sem precisar de senha.
+          Digite seu e-mail cadastrado para acessar o clube.
         </p>
 
-        {sentMessage ? (
-          <div
-            style={{
-              padding: 14,
-              borderRadius: 8,
-              background: '#2f8f6b22',
-              border: '1px solid #2f8f6b',
-              color: 'var(--tx)',
-              marginBottom: 16,
-              fontSize: 14,
-            }}
-          >
-            ✓ {sentMessage}
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: 14 }}>
+            <label
+              htmlFor="login-email-input"
+              style={{ display: 'block', fontSize: 12, fontWeight: 600, color: 'var(--mut)', marginBottom: 6 }}
+            >
+              E-mail do integrante
+            </label>
+            <input
+              id="login-email-input"
+              type="text"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setErrorMessage(null);
+              }}
+              placeholder="seu.email@exemplo.com"
+              aria-label="E-mail"
+              required
+              style={{ width: '100%' }}
+              autoFocus
+            />
           </div>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: 14 }}>
+
+          {isSamuelEmail && (
+            <div style={{ marginBottom: 16 }}>
+              <label
+                htmlFor="login-admin-password"
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: 'var(--amber)',
+                  marginBottom: 6,
+                }}
+              >
+                <span>Senha de Admin</span>
+                <span style={{ fontSize: 11, opacity: 0.8, color: 'var(--mut)' }}>senha: 12345</span>
+              </label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="seu.email@exemplo.com"
-                aria-label="E-mail"
+                id="login-admin-password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Digite a senha (12345)"
+                aria-label="Senha de Administrador"
                 required
-                style={{ width: '100%' }}
+                style={{ width: '100%', borderColor: 'var(--amber)' }}
                 autoFocus
               />
             </div>
+          )}
 
-            {errorMessage && (
-              <div
-                style={{
-                  padding: 10,
-                  borderRadius: 8,
-                  background: '#c0392b22',
-                  border: '1px solid #c0392b',
-                  color: 'var(--rose)',
-                  marginBottom: 14,
-                  fontSize: 13,
-                }}
-              >
-                {errorMessage}
-              </div>
-            )}
-
-            {!isConfigured && (
-              <p
-                style={{
-                  fontSize: 12,
-                  color: 'var(--mut)',
-                  marginBottom: 14,
-                  lineHeight: 1.4,
-                }}
-              >
-                💡 <em>Modo local:</em> Teste com um dos e-mails permitidos (ex: <code>samuel@example.com</code>, <code>luara@example.com</code>) para simular o login. E-mails desconhecidos serão bloqueados.
-              </p>
-            )}
-
-            <button
-              className="btn"
-              type="submit"
-              disabled={loading}
-              style={{ width: '100%' }}
+          {errorMessage && (
+            <div
+              style={{
+                padding: 10,
+                borderRadius: 8,
+                background: '#c0392b22',
+                border: '1px solid #c0392b',
+                color: 'var(--rose)',
+                marginBottom: 14,
+                fontSize: 13,
+              }}
             >
-              {loading ? 'Enviando link...' : 'Receber link mágico'}
+              {errorMessage}
+            </div>
+          )}
+
+          <button
+            className="btn"
+            type="submit"
+            disabled={loading}
+            style={{ width: '100%', marginBottom: 14 }}
+          >
+            {loading ? 'Entrando...' : isSamuelEmail ? 'Entrar como Admin' : 'Entrar no Clube'}
+          </button>
+        </form>
+
+        <div style={{ paddingTop: 14, borderTop: '1px solid var(--line)' }}>
+          <div style={{ fontSize: 11, color: 'var(--mut)', marginBottom: 8, fontWeight: 600 }}>
+            Acesso rápido de teste:
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="btn alt"
+              style={{ padding: '4px 10px', fontSize: 12 }}
+              onClick={() => handleQuickSelect('samuelnasc2805@gmail.com', '12345')}
+            >
+              Samuel (Admin)
             </button>
-          </form>
-        )}
+            <button
+              type="button"
+              className="btn alt"
+              style={{ padding: '4px 10px', fontSize: 12 }}
+              onClick={() => handleQuickSelect('luara@example.com')}
+            >
+              Luara
+            </button>
+            <button
+              type="button"
+              className="btn alt"
+              style={{ padding: '4px 10px', fontSize: 12 }}
+              onClick={() => handleQuickSelect('filipe@example.com')}
+            >
+              Filipe
+            </button>
+            <button
+              type="button"
+              className="btn alt"
+              style={{ padding: '4px 10px', fontSize: 12 }}
+              onClick={() => handleQuickSelect('tamires@example.com')}
+            >
+              Tamires
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

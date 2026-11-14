@@ -45,8 +45,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   onAddPastMovie,
   clubName,
 }) => {
-  const { isAdmin, profile } = useAuth();
+  const { isAdmin, signInWithOtp } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>('cycles');
+  const [adminPasswordInput, setAdminPasswordInput] = useState('');
+  const [adminPasswordError, setAdminPasswordError] = useState<string | null>(null);
 
   // Estados da aba Ciclos
   const [selectedFilmSource, setSelectedFilmSource] = useState<'suggestion' | 'tmdb'>('suggestion');
@@ -115,13 +117,81 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   }, [isAdmin]);
 
   if (!isAdmin) {
+    const handleUnlockAdmin = async (e: React.FormEvent) => {
+      e.preventDefault();
+      const { error } = await signInWithOtp('samuelnasc2805@gmail.com', adminPasswordInput);
+      if (error) {
+        setAdminPasswordError(error.message);
+      } else {
+        setAdminPasswordError(null);
+      }
+    };
+
     return (
-      <section id="admin">
-        <h2>Acesso restrito</h2>
-        <p className="lead">
-          Esta área é restrita a administradores do clube. Seu usuário atual (
-          {profile?.displayName || 'Visitante'}) não possui permissão de administrador.
+      <section id="admin" style={{ maxWidth: 440, margin: '40px auto' }}>
+        <h2 style={{ fontSize: 26, marginBottom: 8, textAlign: 'center' }}>Painel Administrativo</h2>
+        <p className="lead" style={{ textAlign: 'center', marginBottom: 24, fontSize: 14 }}>
+          Esta área é restrita ao administrador do clube. Digite a senha para desbloquear o acesso completo.
         </p>
+
+        <div
+          style={{
+            background: 'var(--bg2)',
+            border: '1px solid var(--line)',
+            borderRadius: 14,
+            padding: '24px',
+          }}
+        >
+          <form onSubmit={handleUnlockAdmin}>
+            <label
+              htmlFor="admin-password-unlock"
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: 13,
+                fontWeight: 600,
+                color: 'var(--amber)',
+                marginBottom: 8,
+              }}
+            >
+              <span>Senha de Administrador:</span>
+              <span style={{ fontSize: 11, color: 'var(--mut)', fontWeight: 400 }}>senha: 12345</span>
+            </label>
+            <input
+              id="admin-password-unlock"
+              type="password"
+              value={adminPasswordInput}
+              onChange={(e) => {
+                setAdminPasswordInput(e.target.value);
+                setAdminPasswordError(null);
+              }}
+              placeholder="Digite a senha (12345)"
+              required
+              style={{ width: '100%', marginBottom: 12 }}
+              autoFocus
+            />
+
+            {adminPasswordError && (
+              <div
+                style={{
+                  padding: 8,
+                  borderRadius: 6,
+                  background: '#c0392b22',
+                  border: '1px solid #c0392b',
+                  color: 'var(--rose)',
+                  fontSize: 12,
+                  marginBottom: 12,
+                }}
+              >
+                {adminPasswordError}
+              </div>
+            )}
+
+            <button className="btn" type="submit" style={{ width: '100%' }}>
+              Desbloquear Painel
+            </button>
+          </form>
+        </div>
       </section>
     );
   }

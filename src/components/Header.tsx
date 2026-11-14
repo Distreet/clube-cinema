@@ -11,7 +11,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ clubName = 'Clube do Livro' }) => {
-  const { profile, isAdmin, signOut, isConfigured, setDevUser } = useAuth();
+  const { profile, isAdmin, signOut } = useAuth();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -133,73 +133,6 @@ export const Header: React.FC<HeaderProps> = ({ clubName = 'Clube do Livro' }) =
             >
               Entrar
             </button>
-          )}
-
-          {/* Simulador de Papéis (modo desenvolvimento/teste) */}
-          {!isConfigured && (
-            <div
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 4,
-                fontSize: 11,
-                color: 'var(--mut)',
-                background: 'var(--bg2)',
-                border: '1px dashed var(--line)',
-                padding: '3px 8px',
-                borderRadius: 99,
-              }}
-              title="Alternador de papéis para simulação local sem Supabase"
-            >
-              <span>Testar papel:</span>
-              <button
-                type="button"
-                style={{
-                  background: 'none',
-                  border: 0,
-                  cursor: 'pointer',
-                  color: profile?.role === 'admin' ? 'var(--amber)' : 'inherit',
-                  fontWeight: profile?.role === 'admin' ? 700 : 400,
-                  fontSize: 11,
-                  padding: 2,
-                }}
-                onClick={() => setDevUser('admin')}
-              >
-                Admin
-              </button>
-              <span>|</span>
-              <button
-                type="button"
-                style={{
-                  background: 'none',
-                  border: 0,
-                  cursor: 'pointer',
-                  color: profile?.role === 'member' ? 'var(--amber)' : 'inherit',
-                  fontWeight: profile?.role === 'member' ? 700 : 400,
-                  fontSize: 11,
-                  padding: 2,
-                }}
-                onClick={() => setDevUser('member')}
-              >
-                Membro
-              </button>
-              <span>|</span>
-              <button
-                type="button"
-                style={{
-                  background: 'none',
-                  border: 0,
-                  cursor: 'pointer',
-                  color: !profile ? 'var(--amber)' : 'inherit',
-                  fontWeight: !profile ? 700 : 400,
-                  fontSize: 11,
-                  padding: 2,
-                }}
-                onClick={() => setDevUser('guest')}
-              >
-                Visitante
-              </button>
-            </div>
           )}
 
           {/* Tema visual */}

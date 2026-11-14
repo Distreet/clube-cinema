@@ -5,6 +5,7 @@
 -- 1. E-mails permitidos dos membros
 insert into public.allowed_emails (email)
 values
+  ('samuelnasc2805@gmail.com'),
   ('samuel@example.com'),
   ('luara@example.com'),
   ('filipe@example.com'),

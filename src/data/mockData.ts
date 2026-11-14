@@ -1,10 +1,10 @@
 import type { ActiveCycle, Member, Movie, Suggestion } from '../types';
 
 export const mockMembers: Member[] = [
-  { id: '1', name: 'Samuel', email: 'samuelnasc2805@gmail.com', letterboxdUsername: 'Distreett', color: '#c0392b' },
-  { id: '2', name: 'Luara', email: 'luara@example.com', letterboxdUsername: 'luarasousa', color: '#2e6f8e' },
-  { id: '3', name: 'Filipe', email: 'filipe@example.com', letterboxdUsername: 'philipassoz', color: '#7d5ba6' },
-  { id: '4', name: 'Tamires', email: 'tamires@example.com', letterboxdUsername: 'tamintf', color: '#d98a2b' },
+  { id: '1', name: 'Samuel', email: 'samuelnasc2805@gmail.com', avatarUrl: '/avatars/samuel.jpg', letterboxdUsername: 'Distreett', color: '#c0392b' },
+  { id: '2', name: 'Luara', email: 'luara@example.com', avatarUrl: '/avatars/luara.jpg', letterboxdUsername: 'luarasousa', color: '#2e6f8e' },
+  { id: '3', name: 'Filipe', email: 'filipe@example.com', avatarUrl: '/avatars/filipe.jpg', letterboxdUsername: 'philipassoz', color: '#7d5ba6' },
+  { id: '4', name: 'Tamires', email: 'tamires@example.com', avatarUrl: '/avatars/tamires.jpg', letterboxdUsername: 'tamintf', color: '#d98a2b' },
 ];
 
 export const initialActiveCycle: ActiveCycle = {

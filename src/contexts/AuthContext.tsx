@@ -143,6 +143,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const adminProfile: UserProfile = {
           id: 'dev-samuel-id',
           displayName: 'Samuel',
+          avatarUrl: '/avatars/samuel.jpg',
           letterboxdUsername: 'Distreett',
           role: 'admin',
         };
@@ -156,6 +157,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const memberProfile: UserProfile = {
           id: 'dev-luara-id',
           displayName: 'Luara',
+          avatarUrl: '/avatars/luara.jpg',
           letterboxdUsername: 'luarasousa',
           role: 'member',
         };
@@ -169,6 +171,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const memberProfile: UserProfile = {
           id: 'dev-filipe-id',
           displayName: 'Filipe',
+          avatarUrl: '/avatars/filipe.jpg',
           letterboxdUsername: 'philipassoz',
           role: 'member',
         };
@@ -182,6 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const memberProfile: UserProfile = {
           id: 'dev-tamires-id',
           displayName: 'Tamires',
+          avatarUrl: '/avatars/tamires.jpg',
           letterboxdUsername: 'tamintf',
           role: 'member',
         };

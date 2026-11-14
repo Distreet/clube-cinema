@@ -40,32 +40,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleQuickSelect = async (memberEmail: string, memberPassword?: string) => {
-    setEmail(memberEmail);
-    setErrorMessage(null);
-    if (memberPassword) {
-      setPassword(memberPassword);
-      setLoading(true);
-      const { error } = await signInWithOtp(memberEmail, memberPassword);
-      setLoading(false);
-      if (error) {
-        setErrorMessage(error.message);
-      } else {
-        onClose();
-      }
-    } else {
-      setPassword('');
-      setLoading(true);
-      const { error } = await signInWithOtp(memberEmail);
-      setLoading(false);
-      if (error) {
-        setErrorMessage(error.message);
-      } else {
-        onClose();
-      }
-    }
-  };
-
   return (
     <div
       role="dialog"
@@ -151,24 +125,21 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
               <label
                 htmlFor="login-admin-password"
                 style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  display: 'block',
                   fontSize: 12,
                   fontWeight: 600,
                   color: 'var(--amber)',
                   marginBottom: 6,
                 }}
               >
-                <span>Senha de Admin</span>
-                <span style={{ fontSize: 11, opacity: 0.8, color: 'var(--mut)' }}>senha: 12345</span>
+                Senha de Administrador
               </label>
               <input
                 id="login-admin-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Digite a senha (12345)"
+                placeholder="Digite a senha de administrador"
                 aria-label="Senha de Administrador"
                 required
                 style={{ width: '100%', borderColor: 'var(--amber)' }}
@@ -197,51 +168,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             className="btn"
             type="submit"
             disabled={loading}
-            style={{ width: '100%', marginBottom: 14 }}
+            style={{ width: '100%', marginBottom: 6 }}
           >
-            {loading ? 'Entrando...' : isSamuelEmail ? 'Entrar como Admin' : 'Entrar no Clube'}
+            {loading ? 'Entrando...' : isSamuelEmail ? 'Entrar como Administrador' : 'Entrar no Clube'}
           </button>
         </form>
-
-        <div style={{ paddingTop: 14, borderTop: '1px solid var(--line)' }}>
-          <div style={{ fontSize: 11, color: 'var(--mut)', marginBottom: 8, fontWeight: 600 }}>
-            Acesso rápido de teste:
-          </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <button
-              type="button"
-              className="btn alt"
-              style={{ padding: '4px 10px', fontSize: 12 }}
-              onClick={() => handleQuickSelect('samuelnasc2805@gmail.com', '12345')}
-            >
-              Samuel (Admin)
-            </button>
-            <button
-              type="button"
-              className="btn alt"
-              style={{ padding: '4px 10px', fontSize: 12 }}
-              onClick={() => handleQuickSelect('luara@example.com')}
-            >
-              Luara
-            </button>
-            <button
-              type="button"
-              className="btn alt"
-              style={{ padding: '4px 10px', fontSize: 12 }}
-              onClick={() => handleQuickSelect('filipe@example.com')}
-            >
-              Filipe
-            </button>
-            <button
-              type="button"
-              className="btn alt"
-              style={{ padding: '4px 10px', fontSize: 12 }}
-              onClick={() => handleQuickSelect('tamires@example.com')}
-            >
-              Tamires
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

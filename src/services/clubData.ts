@@ -12,6 +12,45 @@ export interface ClubInitialData {
   members: Member[];
 }
 
+const STORAGE_KEY_SUGGESTIONS = 'clube_suggestions_cache';
+const STORAGE_KEY_MOVIES = 'clube_movies_cache';
+
+export function getLocalSuggestions(): Suggestion[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_SUGGESTIONS);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    // fallback
+  }
+  return initialSuggestions;
+}
+
+export function saveLocalSuggestions(list: Suggestion[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEY_SUGGESTIONS, JSON.stringify(list));
+  } catch (e) {
+    // ignore
+  }
+}
+
+export function getLocalMovies(): Movie[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_MOVIES);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    // fallback
+  }
+  return mockMovies;
+}
+
+export function saveLocalMovies(list: Movie[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEY_MOVIES, JSON.stringify(list));
+  } catch (e) {
+    // ignore
+  }
+}
+
 /**
  * Carrega todos os dados iniciais do clube (do Supabase ou mock local)
  */
@@ -20,8 +59,8 @@ export async function loadClubData(currentUserId?: string): Promise<ClubInitialD
     return {
       clubName: 'Clube do Livro',
       cycle: initialActiveCycle,
-      movies: mockMovies,
-      suggestions: initialSuggestions,
+      movies: getLocalMovies(),
+      suggestions: getLocalSuggestions(),
       members: mockMembers,
     };
   }
@@ -201,13 +240,25 @@ export async function loadClubData(currentUserId?: string): Promise<ClubInitialD
 }
 
 /**
- * Persiste voto no Supabase
+ * Persiste voto no Supabase e no cache local
  */
 export async function persistToggleVote(
   suggestionId: string,
   userId: string,
   willVote: boolean
 ): Promise<void> {
+  const current = getLocalSuggestions();
+  saveLocalSuggestions(
+    current.map((s) => {
+      if (s.id !== suggestionId) return s;
+      return {
+        ...s,
+        hasVoted: willVote,
+        votes: willVote ? s.votes + 1 : Math.max(0, s.votes - 1),
+      };
+    })
+  );
+
   if (!isSupabaseConfigured) return;
 
   try {
@@ -222,12 +273,18 @@ export async function persistToggleVote(
 }
 
 /**
- * Persiste nova sugestão no Supabase
+ * Persiste nova sugestão no Supabase e no cache local
  */
 export async function persistNewSuggestion(
   suggestion: Suggestion,
   userId: string
 ): Promise<void> {
+  const current = getLocalSuggestions();
+  // Evita duplicar se já estiver na lista
+  if (!current.some((s) => s.id === suggestion.id || s.tmdbId === suggestion.tmdbId)) {
+    saveLocalSuggestions([suggestion, ...current]);
+  }
+
   if (!isSupabaseConfigured) return;
 
   try {
@@ -267,12 +324,17 @@ export async function persistNewSuggestion(
 }
 
 /**
- * Persiste alteração de status da sugestão
+ * Persiste alteração de status da sugestão no Supabase e no cache local
  */
 export async function persistUpdateSuggestionStatus(
   suggestionId: string,
   status: Suggestion['status']
 ): Promise<void> {
+  const current = getLocalSuggestions();
+  saveLocalSuggestions(
+    current.map((s) => (s.id === suggestionId ? { ...s, status } : s))
+  );
+
   if (!isSupabaseConfigured) return;
 
   try {
@@ -283,9 +345,12 @@ export async function persistUpdateSuggestionStatus(
 }
 
 /**
- * Persiste exclusão de sugestão
+ * Persiste exclusão de sugestão no Supabase e no cache local
  */
 export async function persistDeleteSuggestion(suggestionId: string): Promise<void> {
+  const current = getLocalSuggestions();
+  saveLocalSuggestions(current.filter((s) => s.id !== suggestionId));
+
   if (!isSupabaseConfigured) return;
 
   try {

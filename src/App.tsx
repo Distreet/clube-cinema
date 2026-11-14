@@ -23,6 +23,7 @@ import {
   persistNewSuggestion,
   persistUpdateSuggestionStatus,
   persistDeleteSuggestion,
+  saveLocalMovies,
 } from './services/clubData';
 import { toggleWatched } from './services/cycles';
 import { saveManualReview } from './services/reviews';
@@ -130,7 +131,11 @@ const AppContent: React.FC = () => {
 
   // Cadastrar filme do passado diretamente no histórico
   const handleAddPastMovie = (newMovie: Movie) => {
-    setMovies((prev) => [newMovie, ...prev]);
+    setMovies((prev) => {
+      const updated = [newMovie, ...prev];
+      saveLocalMovies(updated);
+      return updated;
+    });
   };
 
   // Moderação de status do acervo
@@ -150,9 +155,7 @@ const AppContent: React.FC = () => {
   // Add a new suggestion
   const handleAddSuggestion = (newSuggestion: Suggestion) => {
     setSuggestions((prev) => [newSuggestion, ...prev]);
-    if (profile) {
-      persistNewSuggestion(newSuggestion, profile.id);
-    }
+    persistNewSuggestion(newSuggestion, profile?.id || 'visitor');
   };
 
   // Toggle vote for a suggestion

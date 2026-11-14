@@ -105,7 +105,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session?.user) {
         await fetchProfile(session.user.id);
       } else {
-        setProfile(null);
+        const saved = localStorage.getItem('clube_user_profile');
+        if (saved) {
+          try {
+            setProfile(JSON.parse(saved));
+          } catch {
+            setProfile(null);
+          }
+        } else {
+          setProfile(null);
+        }
       }
       setIsLoading(false);
     });
@@ -122,98 +131,106 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error: new Error('Por favor, informe seu e-mail.') };
     }
 
-    if (!isSupabaseConfigured) {
-      // 1. Samuel (Admin - Requer senha 12345)
-      const isSamuel =
-        cleanEmail === 'samuelnasc2805@gmail.com' ||
-        cleanEmail === 'samuel@example.com' ||
-        cleanEmail === 'samuel';
+    // 1. Samuel (Administrador - requer senha)
+    const isSamuel =
+      cleanEmail === 'samuelnasc2805@gmail.com' ||
+      cleanEmail === 'samuel@example.com' ||
+      cleanEmail === 'samuel';
 
-      if (isSamuel) {
-        if (!password) {
-          return {
-            error: null,
-            needsPassword: true,
-            message: 'E-mail de administrador identificado. Digite a senha para continuar.',
-          };
-        }
-        if (password.trim() !== '12345') {
-          return { error: new Error('Senha de administrador incorreta.') };
-        }
-        const adminProfile: UserProfile = {
-          id: 'dev-samuel-id',
-          displayName: 'Samuel',
-          avatarUrl: '/avatars/samuel.jpg',
-          letterboxdUsername: 'Distreett',
-          role: 'admin',
+    if (isSamuel) {
+      if (!password) {
+        return {
+          error: null,
+          needsPassword: true,
+          message: 'E-mail de administrador identificado. Digite a senha para continuar.',
         };
-        localStorage.setItem('clube_user_profile', JSON.stringify(adminProfile));
-        setProfile(adminProfile);
-        return { error: null, message: 'Autenticado com sucesso como Administrador!' };
       }
-
-      // 2. Luara
-      if (cleanEmail.includes('luara')) {
-        const memberProfile: UserProfile = {
-          id: 'dev-luara-id',
-          displayName: 'Luara',
-          avatarUrl: '/avatars/luara.jpg',
-          letterboxdUsername: 'luarasousa',
-          role: 'member',
-        };
-        localStorage.setItem('clube_user_profile', JSON.stringify(memberProfile));
-        setProfile(memberProfile);
-        return { error: null, message: 'Bem-vinda, Luara!' };
+      if (password.trim() !== '12345') {
+        return { error: new Error('Senha de administrador incorreta.') };
       }
-
-      // 3. Filipe
-      if (cleanEmail.includes('filipe') || cleanEmail.includes('philip')) {
-        const memberProfile: UserProfile = {
-          id: 'dev-filipe-id',
-          displayName: 'Filipe',
-          avatarUrl: '/avatars/filipe.jpg',
-          letterboxdUsername: 'philipassoz',
-          role: 'member',
-        };
-        localStorage.setItem('clube_user_profile', JSON.stringify(memberProfile));
-        setProfile(memberProfile);
-        return { error: null, message: 'Bem-vindo, Filipe!' };
-      }
-
-      // 4. Tamires
-      if (cleanEmail.includes('tamires') || cleanEmail.includes('tamintf')) {
-        const memberProfile: UserProfile = {
-          id: 'dev-tamires-id',
-          displayName: 'Tamires',
-          avatarUrl: '/avatars/tamires.jpg',
-          letterboxdUsername: 'tamintf',
-          role: 'member',
-        };
-        localStorage.setItem('clube_user_profile', JSON.stringify(memberProfile));
-        setProfile(memberProfile);
-        return { error: null, message: 'Bem-vinda, Tamires!' };
-      }
-
-      return {
-        error: new Error('E-mail não encontrado no clube. Verifique a digitação ou solicite acesso ao administrador.'),
+      const adminProfile: UserProfile = {
+        id: 'dev-samuel-id',
+        displayName: 'Samuel',
+        avatarUrl: '/avatars/samuel.jpg',
+        letterboxdUsername: 'Distreett',
+        role: 'admin',
       };
+      localStorage.setItem('clube_user_profile', JSON.stringify(adminProfile));
+      setProfile(adminProfile);
+      return { error: null, message: 'Autenticado com sucesso como Administrador!' };
     }
 
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: cleanEmail,
-        options: {
-          emailRedirectTo: window.location.origin,
-        },
-      });
+    // 2. Luara
+    if (cleanEmail.includes('luara')) {
+      const memberProfile: UserProfile = {
+        id: 'dev-luara-id',
+        displayName: 'Luara',
+        avatarUrl: '/avatars/luara.jpg',
+        letterboxdUsername: 'luarasousa',
+        role: 'member',
+      };
+      localStorage.setItem('clube_user_profile', JSON.stringify(memberProfile));
+      setProfile(memberProfile);
+      return { error: null, message: 'Bem-vinda, Luara!' };
+    }
 
-      if (error) {
-        return { error };
+    // 3. Filipe
+    if (cleanEmail.includes('filipe') || cleanEmail.includes('philip')) {
+      const memberProfile: UserProfile = {
+        id: 'dev-filipe-id',
+        displayName: 'Filipe',
+        avatarUrl: '/avatars/filipe.jpg',
+        letterboxdUsername: 'philipassoz',
+        role: 'member',
+      };
+      localStorage.setItem('clube_user_profile', JSON.stringify(memberProfile));
+      setProfile(memberProfile);
+      return { error: null, message: 'Bem-vindo, Filipe!' };
+    }
+
+    // 4. Tamires
+    if (cleanEmail.includes('tamires') || cleanEmail.includes('tamintf')) {
+      const memberProfile: UserProfile = {
+        id: 'dev-tamires-id',
+        displayName: 'Tamires',
+        avatarUrl: '/avatars/tamires.jpg',
+        letterboxdUsername: 'tamintf',
+        role: 'member',
+      };
+      localStorage.setItem('clube_user_profile', JSON.stringify(memberProfile));
+      setProfile(memberProfile);
+      return { error: null, message: 'Bem-vinda, Tamires!' };
+    }
+
+    // 5. Se houver Supabase configurado, tenta buscar perfil existente por e-mail ou display_name
+    if (isSupabaseConfigured) {
+      try {
+        const { data: dbUser } = await supabase
+          .from('profiles')
+          .select('id, display_name, letterboxd_username, role, avatar_url')
+          .or(`email.ilike.%${cleanEmail}%,display_name.ilike.%${cleanEmail}%`)
+          .maybeSingle();
+
+        if (dbUser) {
+          const dbProfile: UserProfile = {
+            id: dbUser.id,
+            displayName: dbUser.display_name,
+            avatarUrl: dbUser.avatar_url,
+            letterboxdUsername: dbUser.letterboxd_username,
+            role: dbUser.role as 'admin' | 'member',
+          };
+          localStorage.setItem('clube_user_profile', JSON.stringify(dbProfile));
+          setProfile(dbProfile);
+          return { error: null, message: `Bem-vindo(a), ${dbUser.display_name}!` };
+        }
+      } catch (err) {
+        // segue para mensagem de erro
       }
-      return { error: null, message: 'Link mágico enviado para seu e-mail!' };
-    } catch (err) {
-      return { error: err as Error };
     }
+
+    return {
+      error: new Error('E-mail não encontrado no clube. Verifique a digitação ou solicite acesso ao administrador.'),
+    };
   };
 
   const signOut = async () => {

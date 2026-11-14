@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import {
   initialActiveCycle,
@@ -17,6 +17,20 @@ import { DetalheFilmePage } from './pages/DetalheFilmePage';
 import { AcervoPage } from './pages/AcervoPage';
 import { MembrosPage } from './pages/MembrosPage';
 import { AdminPage } from './pages/AdminPage';
+import {
+  loadClubData,
+  persistToggleVote,
+  persistNewSuggestion,
+  persistUpdateSuggestionStatus,
+  persistDeleteSuggestion,
+} from './services/clubData';
+import { toggleWatched } from './services/cycles';
+import { saveManualReview } from './services/reviews';
+import {
+  startNewCycleInDatabase,
+  finishActiveCycleInDatabase,
+  saveClubNameSetting,
+} from './services/admin';
 
 const AppContent: React.FC = () => {
   const { profile } = useAuth();
@@ -24,11 +38,24 @@ const AppContent: React.FC = () => {
   const [cycle, setCycle] = useState<ActiveCycle | null>(initialActiveCycle);
   const [movies, setMovies] = useState<Movie[]>(mockMovies);
   const [suggestions, setSuggestions] = useState<Suggestion[]>(initialSuggestions);
-  const [members] = useState(mockMembers);
+  const [members, setMembers] = useState(mockMembers);
+
+  // Carrega dados dinâmicos do Supabase quando configurado
+  useEffect(() => {
+    loadClubData(profile?.id).then((data) => {
+      setClubName(data.clubName);
+      setCycle(data.cycle);
+      setMovies(data.movies);
+      setSuggestions(data.suggestions);
+      setMembers(data.members);
+    });
+  }, [profile?.id]);
 
   // Toggle user watch mark in active cycle
   const handleToggleWatch = (memberName: string) => {
     if (!cycle) return;
+
+    let currentlyWatched = false;
     setCycle((prev) => {
       if (!prev) return null;
       const exists = prev.crew.some(
@@ -36,16 +63,22 @@ const AppContent: React.FC = () => {
       );
       let updatedCrew: CycleMark[];
       if (exists) {
-        updatedCrew = prev.crew.map((item) =>
-          item.memberName.toLowerCase() === memberName.toLowerCase()
-            ? { ...item, watched: !item.watched }
-            : item
-        );
+        updatedCrew = prev.crew.map((item) => {
+          if (item.memberName.toLowerCase() === memberName.toLowerCase()) {
+            currentlyWatched = item.watched;
+            return { ...item, watched: !item.watched };
+          }
+          return item;
+        });
       } else {
         updatedCrew = [...prev.crew, { memberName, watched: true }];
       }
       return { ...prev, crew: updatedCrew };
     });
+
+    if (profile) {
+      toggleWatched(cycle.id, profile.id, currentlyWatched);
+    }
   };
 
   // Iniciar novo ciclo
@@ -54,6 +87,12 @@ const AppContent: React.FC = () => {
     setSuggestions((prev) =>
       prev.map((s) => (s.tmdbId === newCycle.tmdbId ? { ...s, status: 'chosen' } : s))
     );
+
+    startNewCycleInDatabase({
+      tmdbId: newCycle.tmdbId,
+      startDate: new Date().toISOString().substring(0, 10),
+      watchDeadline: `${new Date().getFullYear()}-12-31`,
+    });
   };
 
   // Encerrar ciclo ativo
@@ -84,7 +123,14 @@ const AppContent: React.FC = () => {
     setSuggestions((prev) =>
       prev.map((s) => (s.tmdbId === cycle.tmdbId ? { ...s, status: 'seen' } : s))
     );
+
+    finishActiveCycleInDatabase(cycle.id);
     setCycle(null);
+  };
+
+  // Cadastrar filme do passado diretamente no histórico
+  const handleAddPastMovie = (newMovie: Movie) => {
+    setMovies((prev) => [newMovie, ...prev]);
   };
 
   // Moderação de status do acervo
@@ -92,24 +138,30 @@ const AppContent: React.FC = () => {
     setSuggestions((prev) =>
       prev.map((s) => (s.id === suggestionId ? { ...s, status } : s))
     );
+    persistUpdateSuggestionStatus(suggestionId, status);
   };
 
   // Remoção de sugestão indevida
   const handleDeleteSuggestion = (suggestionId: string) => {
     setSuggestions((prev) => prev.filter((s) => s.id !== suggestionId));
+    persistDeleteSuggestion(suggestionId);
   };
 
   // Add a new suggestion
   const handleAddSuggestion = (newSuggestion: Suggestion) => {
     setSuggestions((prev) => [newSuggestion, ...prev]);
+    if (profile) {
+      persistNewSuggestion(newSuggestion, profile.id);
+    }
   };
 
   // Toggle vote for a suggestion
   const handleToggleVote = (id: string) => {
+    let willVote = false;
     setSuggestions((prev) =>
       prev.map((item) => {
         if (item.id !== id) return item;
-        const willVote = !item.hasVoted;
+        willVote = !item.hasVoted;
         return {
           ...item,
           hasVoted: willVote,
@@ -117,6 +169,10 @@ const AppContent: React.FC = () => {
         };
       })
     );
+
+    if (profile) {
+      persistToggleVote(id, profile.id, willVote);
+    }
   };
 
   // Salva ou edita a avaliação manual do filme pelo usuário logado
@@ -132,6 +188,8 @@ const AppContent: React.FC = () => {
     rating: number,
     reviewText: string
   ) => {
+    const targetMovie = movies.find((m) => m.id === movieId || String(m.tmdbId) === movieId);
+
     setMovies((prev) =>
       prev.map((m) => {
         if (m.id !== movieId && String(m.tmdbId) !== movieId) return m;
@@ -168,6 +226,22 @@ const AppContent: React.FC = () => {
         return { ...m, reviews: updatedReviews };
       })
     );
+
+    if (targetMovie && profile) {
+      const memberObj = members.find((x) => x.name.toLowerCase() === memberName.toLowerCase());
+      const memberUserId = memberObj?.id || profile.id;
+      saveManualReview({
+        tmdbId: targetMovie.tmdbId,
+        userId: memberUserId,
+        rating,
+        reviewText,
+      });
+    }
+  };
+
+  const handleUpdateClubName = (name: string) => {
+    setClubName(name);
+    saveClubNameSetting(name);
   };
 
   return (
@@ -242,7 +316,8 @@ const AppContent: React.FC = () => {
                   onUpdateSuggestionStatus={handleUpdateSuggestionStatus}
                   onDeleteSuggestion={handleDeleteSuggestion}
                   onSaveMemberReview={handleSaveReviewForMember}
-                  onUpdateClubName={(name) => setClubName(name)}
+                  onUpdateClubName={handleUpdateClubName}
+                  onAddPastMovie={handleAddPastMovie}
                   clubName={clubName}
                 />
               }

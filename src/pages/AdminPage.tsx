@@ -10,6 +10,7 @@ import {
   addAllowedEmail,
   removeAllowedEmail,
   saveClubNameSetting,
+  addPastMovieToHistory,
 } from '../services/admin';
 import type { AllowedEmailEntry } from '../services/admin';
 
@@ -24,6 +25,7 @@ interface AdminPageProps {
   onDeleteSuggestion: (suggestionId: string) => void;
   onSaveMemberReview: (movieId: string, memberName: string, rating: number, text: string) => void;
   onUpdateClubName: (name: string) => void;
+  onAddPastMovie?: (movie: Movie) => void;
   clubName: string;
 }
 
@@ -40,6 +42,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   onDeleteSuggestion,
   onSaveMemberReview,
   onUpdateClubName,
+  onAddPastMovie,
   clubName,
 }) => {
   const { isAdmin, profile } = useAuth();
@@ -57,6 +60,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   });
   const [discussionDate, setDiscussionDate] = useState('');
   const [cycleFeedback, setCycleFeedback] = useState<string | null>(null);
+
+  // Estados para cadastrar filme do passado diretamente no histórico
+  const [selectedPastTmdbMovie, setSelectedPastTmdbMovie] = useState<any>(null);
+  const [pastSessionMonth, setPastSessionMonth] = useState('');
+  const [pastFeedback, setPastFeedback] = useState<string | null>(null);
+  const [isSubmittingPastMovie, setIsSubmittingPastMovie] = useState(false);
 
   // Estados da aba Notas Manuais
   const [reviewMovieId, setReviewMovieId] = useState<string>(movies[0]?.id || '');
@@ -185,6 +194,70 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
     onStartCycle(newCycleObj);
     setCycleFeedback(`Novo ciclo iniciado com sucesso para o filme "${title}"!`);
+  };
+
+  // AÇÃO: Cadastrar filme anterior diretamente no histórico Já Vimos
+  const handleAddPastMovieSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPastFeedback(null);
+    if (!selectedPastTmdbMovie) {
+      setPastFeedback('Busque e selecione um filme do TMDB.');
+      return;
+    }
+    if (!pastSessionMonth.trim()) {
+      setPastFeedback('Informe o mês/ano da sessão (ex: outubro 2024).');
+      return;
+    }
+
+    setIsSubmittingPastMovie(true);
+    try {
+      const chosenTmdbId = selectedPastTmdbMovie.id;
+      let director = 'Não informado';
+      let genreStr = 'Drama';
+      let whereToWatchData: any = null;
+
+      const details = await getMovieDetails(chosenTmdbId);
+      if (details?.movie) {
+        director = details.movie.director || director;
+        genreStr = Array.isArray(details.movie.genres) ? details.movie.genres.join(', ') : genreStr;
+        whereToWatchData = details.whereToWatch;
+      }
+
+      const newMovie: Movie = {
+        id: `movie-${chosenTmdbId}`,
+        tmdbId: chosenTmdbId,
+        title: selectedPastTmdbMovie.title,
+        originalTitle: selectedPastTmdbMovie.original_title || selectedPastTmdbMovie.title,
+        year: selectedPastTmdbMovie.year || new Date().getFullYear(),
+        director,
+        genres: genreStr,
+        castMain: 'Elenco oficial',
+        sessionMonth: pastSessionMonth.trim(),
+        overview: selectedPastTmdbMovie.overview || '',
+        bgGradient: 'linear-gradient(160deg, #1c2333, #2a3b5c)',
+        posterUrl: getTMDBImageUrl(selectedPastTmdbMovie.poster_path, 'w500'),
+        backdropUrl: getTMDBImageUrl(selectedPastTmdbMovie.backdrop_path, 'w1280'),
+        letterboxdSlug: selectedPastTmdbMovie.title.toLowerCase().replace(/\s+/g, '-'),
+        whereToWatch: whereToWatchData,
+        reviews: [],
+      };
+
+      await addPastMovieToHistory({
+        tmdbId: chosenTmdbId,
+        sessionMonth: pastSessionMonth.trim(),
+      });
+
+      if (onAddPastMovie) {
+        onAddPastMovie(newMovie);
+      }
+      setSelectedPastTmdbMovie(null);
+      setPastSessionMonth('');
+      setPastFeedback(`Filme "${newMovie.title}" cadastrado com sucesso no histórico Já Vimos!`);
+    } catch (err: any) {
+      setPastFeedback(`Erro ao cadastrar filme: ${err.message}`);
+    } finally {
+      setIsSubmittingPastMovie(false);
+    }
   };
 
   // AÇÃO: Salvar nota manual de um membro
@@ -494,6 +567,57 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
               <button className="btn" type="submit">
                 Criar e ativar ciclo
+              </button>
+            </form>
+          </div>
+
+          {/* Cadastrar filme anterior no histórico */}
+          <div style={{ background: 'var(--bg2)', border: '1px solid var(--line)', borderRadius: 12, padding: 20 }}>
+            <h3 style={{ fontSize: 18, marginBottom: 8 }}>Cadastrar filme anterior no histórico (Já Vimos)</h3>
+            <p className="mut" style={{ fontSize: 14, margin: '0 0 16px' }}>
+              Utilize esta opção para cadastrar filmes que o grupo já assistiu no passado sem precisar criar um ciclo ativo. O pôster, banner oficial e detalhes são buscados no TMDB automaticamente.
+            </p>
+
+            <form onSubmit={handleAddPastMovieSubmit}>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--mut)', marginBottom: 6 }}>
+                  Buscar filme no TMDB *:
+                </label>
+                <MovieSearchAutocomplete
+                  onSelectMovie={(m) => setSelectedPastTmdbMovie(m)}
+                  existingSuggestionsTmdbIds={[]}
+                  seenMoviesTmdbIds={movies.map((m) => m.tmdbId)}
+                />
+                {selectedPastTmdbMovie && (
+                  <div style={{ marginTop: 8, fontSize: 14, color: 'var(--amber)' }}>
+                    ✓ Selecionado: <strong>{selectedPastTmdbMovie.title}</strong> ({selectedPastTmdbMovie.year})
+                  </div>
+                )}
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label htmlFor="pastSessionMonthInput" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--mut)', marginBottom: 6 }}>
+                  Mês e ano da sessão * (ex: "out 2024", "novembro de 2023")
+                </label>
+                <input
+                  id="pastSessionMonthInput"
+                  type="text"
+                  placeholder="Ex: setembro 2024"
+                  value={pastSessionMonth}
+                  onChange={(e) => setPastSessionMonth(e.target.value)}
+                  required
+                  style={{ width: '100%', maxWidth: 360 }}
+                />
+              </div>
+
+              {pastFeedback && (
+                <div style={{ marginBottom: 14, color: 'var(--amber)', fontWeight: 600, fontSize: 14 }}>
+                  {pastFeedback}
+                </div>
+              )}
+
+              <button className="btn" type="submit" disabled={isSubmittingPastMovie}>
+                {isSubmittingPastMovie ? 'Buscando dados e cadastrando...' : 'Cadastrar no histórico Já Vimos'}
               </button>
             </form>
           </div>

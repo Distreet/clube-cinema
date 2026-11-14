@@ -179,3 +179,39 @@ export async function finishActiveCycleInDatabase(cycleId: string): Promise<{ su
 
   return { success: true };
 }
+
+/**
+ * Adiciona um filme do passado diretamente ao histórico (Já Vimos)
+ */
+export async function addPastMovieToHistory(params: {
+  tmdbId: number;
+  sessionMonth: string;
+  watchedDate?: string;
+}): Promise<{ success: boolean; error?: string }> {
+  if (isSupabaseConfigured) {
+    try {
+      // 1. Garante que o filme esteja em cache na tabela movies
+      const details = await getMovieDetails(params.tmdbId);
+      if (details?.movie) {
+        await supabase.from('movies').upsert(details.movie);
+      }
+
+      // 2. Cria um ciclo já concluído (status: 'done') para vincular a data ao histórico
+      const watched = params.watchedDate || new Date().toISOString().substring(0, 10);
+      const { error } = await supabase.from('cycles').insert({
+        tmdb_id: params.tmdbId,
+        start_date: watched,
+        watch_deadline: watched,
+        status: 'done',
+        notes: `Sessão realizada em ${params.sessionMonth}`,
+      });
+
+      if (error) return { success: false, error: error.message };
+      return { success: true };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  }
+
+  return { success: true };
+}

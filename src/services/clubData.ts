@@ -279,11 +279,13 @@ export async function persistToggleVote(
 
   if (!isSupabaseConfigured) return;
 
+  const validUserId = userId && userId !== 'visitor' ? userId : 'member-samuel';
+
   try {
     if (willVote) {
-      await supabase.from('votes').insert({ suggestion_id: suggestionId, user_id: userId });
+      await supabase.from('votes').upsert({ suggestion_id: suggestionId, user_id: validUserId });
     } else {
-      await supabase.from('votes').delete().match({ suggestion_id: suggestionId, user_id: userId });
+      await supabase.from('votes').delete().match({ suggestion_id: suggestionId, user_id: validUserId });
     }
   } catch (err) {
     console.error('Erro ao persistir voto:', err);
@@ -305,6 +307,8 @@ export async function persistNewSuggestion(
 
   if (!isSupabaseConfigured) return;
 
+  const validUserId = userId && userId !== 'visitor' ? userId : 'member-samuel';
+
   try {
     // 1. Garante que o filme existe na tabela movies
     await supabase.from('movies').upsert({
@@ -312,18 +316,23 @@ export async function persistNewSuggestion(
       title: suggestion.title,
       original_title: suggestion.originalTitle || suggestion.title,
       year: suggestion.year || 2026,
+      poster_path: suggestion.posterUrl ? suggestion.posterUrl.replace('https://image.tmdb.org/t/p/w500', '') : null,
+      backdrop_path: suggestion.backdropUrl ? suggestion.backdropUrl.replace('https://image.tmdb.org/t/p/w1280', '') : null,
       overview: suggestion.overview || '',
       runtime: suggestion.runtime || null,
       director: suggestion.director || null,
+      genres: suggestion.genres ? suggestion.genres.split(', ') : [],
+      cast_main: suggestion.castMain ? suggestion.castMain.split(', ') : [],
       cached_at: new Date().toISOString(),
     });
 
     // 2. Insere a sugestão
     const { data: sugData, error } = await supabase
       .from('suggestions')
-      .insert({
+      .upsert({
+        id: suggestion.id,
         tmdb_id: suggestion.tmdbId,
-        suggested_by: userId,
+        suggested_by: validUserId,
         status: 'pending',
       })
       .select()
@@ -331,9 +340,9 @@ export async function persistNewSuggestion(
 
     if (!error && sugData) {
       // 3. Insere voto de quem indicou
-      await supabase.from('votes').insert({
+      await supabase.from('votes').upsert({
         suggestion_id: sugData.id,
-        user_id: userId,
+        user_id: validUserId,
       });
     }
   } catch (err) {

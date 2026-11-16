@@ -149,7 +149,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: new Error('Senha de administrador incorreta.') };
       }
       const adminProfile: UserProfile = {
-        id: 'dev-samuel-id',
+        id: 'member-samuel',
         displayName: 'Samuel',
         avatarUrl: '/avatars/samuel.jpg',
         letterboxdUsername: 'Distreett',
@@ -163,7 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 2. Luara
     if (cleanEmail.includes('luara')) {
       const memberProfile: UserProfile = {
-        id: 'dev-luara-id',
+        id: 'member-luara',
         displayName: 'Luara',
         avatarUrl: '/avatars/luara.jpg',
         letterboxdUsername: 'luarasousa',
@@ -177,7 +177,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 3. Filipe
     if (cleanEmail.includes('filipe') || cleanEmail.includes('philip')) {
       const memberProfile: UserProfile = {
-        id: 'dev-filipe-id',
+        id: 'member-filipe',
         displayName: 'Filipe',
         avatarUrl: '/avatars/filipe.jpg',
         letterboxdUsername: 'philipassoz',
@@ -191,7 +191,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 4. Tamires
     if (cleanEmail.includes('tamires') || cleanEmail.includes('tamintf')) {
       const memberProfile: UserProfile = {
-        id: 'dev-tamires-id',
+        id: 'member-tamires',
         displayName: 'Tamires',
         avatarUrl: '/avatars/tamires.jpg',
         letterboxdUsername: 'tamintf',

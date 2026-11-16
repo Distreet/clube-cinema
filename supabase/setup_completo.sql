@@ -1,5 +1,5 @@
 -- ==============================================================================
--- Clube do Livro - Migração Inicial
+-- Clube do Filme - Migração Inicial
 -- Schema, Triggers, RLS e Funções de Segurança
 -- ==============================================================================
 
@@ -181,7 +181,7 @@ create table if not exists public.settings (
 
 -- Insere nome inicial do clube
 insert into public.settings (key, value)
-values ('club_name', '"Clube do Livro"'::jsonb)
+values ('club_name', '"Clube do Filme"'::jsonb)
 on conflict (key) do nothing;
 
 -- ==============================================================================
@@ -543,7 +543,7 @@ on conflict (email) do nothing;
 
 -- 2. Configurações iniciais
 insert into public.settings (key, value)
-values ('club_name', '"Clube do Livro"'::jsonb)
+values ('club_name', '"Clube do Filme"'::jsonb)
 on conflict (key) do nothing;
 
 -- 3. Cache de Filmes do Clube (Histórico 2026 + Filme Atual)

@@ -14,6 +14,17 @@ export interface ClubInitialData {
 
 const STORAGE_KEY_SUGGESTIONS = 'clube_suggestions_cache';
 const STORAGE_KEY_MOVIES = 'clube_movies_cache';
+const STORAGE_KEY_CLUB_NAME = 'clube_name';
+
+export function getLocalClubName(): string {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_CLUB_NAME);
+    if (raw && raw.trim().length >= 2) return raw.trim();
+  } catch (e) {
+    // fallback
+  }
+  return 'Clube do Filme';
+}
 
 export function getLocalSuggestions(): Suggestion[] {
   try {
@@ -55,9 +66,11 @@ export function saveLocalMovies(list: Movie[]): void {
  * Carrega todos os dados iniciais do clube (do Supabase ou mock local)
  */
 export async function loadClubData(currentUserId?: string): Promise<ClubInitialData> {
+  const localClubName = getLocalClubName();
+
   if (!isSupabaseConfigured) {
     return {
-      clubName: 'Clube do Livro',
+      clubName: localClubName,
       cycle: initialActiveCycle,
       movies: getLocalMovies(),
       suggestions: getLocalSuggestions(),
@@ -67,7 +80,7 @@ export async function loadClubData(currentUserId?: string): Promise<ClubInitialD
 
   try {
     // 1. Nome do clube
-    let clubName = 'Clube do Livro';
+    let clubName = localClubName;
     const { data: settingData } = await supabase
       .from('settings')
       .select('value')
@@ -78,6 +91,11 @@ export async function loadClubData(currentUserId?: string): Promise<ClubInitialD
       clubName = typeof settingData.value === 'string'
         ? settingData.value.replace(/^"|"$/g, '')
         : String(settingData.value);
+      try {
+        localStorage.setItem(STORAGE_KEY_CLUB_NAME, clubName);
+      } catch (e) {
+        // ignore
+      }
     }
 
     // 2. Ciclo ativo
@@ -230,10 +248,10 @@ export async function loadClubData(currentUserId?: string): Promise<ClubInitialD
   } catch (err) {
     console.warn('Erro ao carregar dados do Supabase, usando fallback local:', err);
     return {
-      clubName: 'Clube do Livro',
+      clubName: localClubName,
       cycle: initialActiveCycle,
-      movies: mockMovies,
-      suggestions: initialSuggestions,
+      movies: getLocalMovies(),
+      suggestions: getLocalSuggestions(),
       members: mockMembers,
     };
   }

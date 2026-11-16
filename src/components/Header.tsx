@@ -10,7 +10,7 @@ interface HeaderProps {
   clubName?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ clubName = 'Clube do Livro' }) => {
+export const Header: React.FC<HeaderProps> = ({ clubName = 'Clube do Filme' }) => {
   const { profile, isAdmin, signOut } = useAuth();
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);

@@ -92,6 +92,12 @@ export async function saveClubNameSetting(name: string): Promise<{ success: bool
     return { success: false, error: 'O nome do clube deve ter pelo menos 2 caracteres.' };
   }
 
+  try {
+    localStorage.setItem('clube_name', cleanName);
+  } catch (e) {
+    // ignore
+  }
+
   if (isSupabaseConfigured) {
     try {
       const { error } = await supabase

@@ -24,6 +24,7 @@ import {
   persistUpdateSuggestionStatus,
   persistDeleteSuggestion,
   saveLocalMovies,
+  getLocalClubName,
 } from './services/clubData';
 import { toggleWatched } from './services/cycles';
 import { saveManualReview } from './services/reviews';
@@ -35,7 +36,7 @@ import {
 
 const AppContent: React.FC = () => {
   const { profile } = useAuth();
-  const [clubName, setClubName] = useState<string>('Clube do Livro');
+  const [clubName, setClubName] = useState<string>(getLocalClubName);
   const [cycle, setCycle] = useState<ActiveCycle | null>(initialActiveCycle);
   const [movies, setMovies] = useState<Movie[]>(mockMovies);
   const [suggestions, setSuggestions] = useState<Suggestion[]>(initialSuggestions);

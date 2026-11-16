@@ -1,6 +1,6 @@
 {
-  "name": "Clube do Livro - Cinema",
-  "short_name": "Clube Cinema",
+  "name": "Clube do Filme",
+  "short_name": "Clube do Filme",
   "description": "Clube de cinema mensal do Samuel, Luara, Filipe e Tamires.",
   "start_url": "/",
   "display": "standalone",

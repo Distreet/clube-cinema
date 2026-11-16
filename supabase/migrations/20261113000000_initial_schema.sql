@@ -181,7 +181,7 @@ create table if not exists public.settings (
 
 -- Insere nome inicial do clube
 insert into public.settings (key, value)
-values ('club_name', '"Clube do Livro"'::jsonb)
+values ('club_name', '"Clube do Filme"'::jsonb)
 on conflict (key) do nothing;
 
 -- ==============================================================================
